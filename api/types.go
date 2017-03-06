@@ -97,7 +97,7 @@ func (h *Heritage) FillinDefaults() {
 }
 
 type Service struct {
-	Public       bool           `yaml:"public" json:"public"`
+	Public       *bool          `yaml:"public,omitempty" json:"public,omitempty"`
 	Name         string         `yaml:"name" json:"name"`
 	Cpu          int            `yaml:"cpu" json:"cpu"`
 	Memory       int            `yaml:"memory" json:"memory"`
