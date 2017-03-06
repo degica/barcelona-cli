@@ -219,6 +219,7 @@ var DistrictCommand = cli.Command{
 				req := api.Plugin{
 					Name: pluginName,
 				}
+				req.Attributes = make(map[string]string)
 				attrs := c.StringSlice("attribute")
 				for _, s := range attrs {
 					ss := strings.SplitN(s, "=", 2)
@@ -229,7 +230,7 @@ var DistrictCommand = cli.Command{
 				if err != nil {
 					return cli.NewExitError(err.Error(), 1)
 				}
-				fmt.Println(plugin)
+				printPlugin(plugin)
 				return nil
 			},
 		},
@@ -256,6 +257,13 @@ var DistrictCommand = cli.Command{
 			},
 		},
 	},
+}
+
+func printPlugin(p *api.Plugin) {
+	fmt.Printf("Name %s\n", p.Name)
+	for k, v := range p.Attributes {
+		fmt.Printf("%s: %s\n", k, v)
+	}
 }
 
 func printDistrict(d *api.District) {
@@ -288,7 +296,11 @@ func printDistrict(d *api.District) {
 
 	fmt.Printf("Plugins:\n")
 	for _, plugin := range d.Plugins {
-		fmt.Printf("  %s\n", plugin.Name)
+		attrs := ""
+		for k, v := range plugin.Attributes {
+			attrs += fmt.Sprintf("%s=%s ", k, v)
+		}
+		fmt.Printf("  %s: %s\n", plugin.Name, attrs)
 	}
 }
 

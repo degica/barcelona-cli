@@ -97,7 +97,7 @@ func (cli *Client) PutPlugin(districtName string, plugin *Plugin) (*Plugin, erro
 		return nil, err
 	}
 
-	resp, err := cli.Request("POST", fmt.Sprintf("/districts/%s/plugins", districtName), bytes.NewBuffer(b))
+	resp, err := cli.Request("PUT", fmt.Sprintf("/districts/%s/plugins/%s", districtName, plugin.Name), bytes.NewBuffer(b))
 	if err != nil {
 		return nil, err
 	}

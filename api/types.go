@@ -59,7 +59,7 @@ type ContainerInstance struct {
 
 type Plugin struct {
 	Name       string            `json:"name,omitempty"`
-	Attributes map[string]string `json:"plugin_attributes,omitempty"`
+	Attributes map[string]string `json:"attributes,omitempty"`
 }
 
 type PluginResponse struct {
@@ -194,10 +194,12 @@ type EndpointResponse struct {
 }
 
 type Endpoint struct {
-	Name          string    `json:"name,omitempty"`
-	Public        bool      `json:"public,omitempty"`
-	CertificateID string    `json:"certificate_id,omitempty"`
-	District      *District `json:"district,omitempty"`
+	Name          string `json:"name,omitempty"`
+	Public        bool   `json:"public,omitempty"`
+	CertificateID string `json:"certificate_id,omitempty"`
+	// Response only
+	DNSName  string    `json:"dns_name,omitempty"`
+	District *District `json:"district,omitempty"`
 }
 
 type User struct {
