@@ -205,6 +205,7 @@ func printEndpoint(e *api.Endpoint) {
 	fmt.Printf("Name: %s\n", e.Name)
 	fmt.Printf("Public: %t\n", e.Public)
 	fmt.Printf("Certificate ARN: %s\n", e.CertificateID)
+	fmt.Printf("DNS Name: %s\n", e.DNSName)
 }
 
 func printEndpoints(es []*api.Endpoint) {
