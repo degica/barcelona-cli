@@ -27,6 +27,9 @@ var CreateCommand = cli.Command{
 		h.FillinDefaults()
 
 		resp, err := api.DefaultClient.CreateHeritage(c.String("district"), h)
+		if err != nil {
+			return cli.NewExitError(err.Error(), 1)
+		}
 		PrintHeritage(resp)
 
 		return nil
