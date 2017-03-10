@@ -79,6 +79,7 @@ var RunCommand = cli.Command{
 
 		fmt.Println("Waiting for the process to start")
 
+	LOOP:
 		for {
 			path := fmt.Sprintf("/oneoffs/%d", oneoff.ID)
 			resp, err := api.DefaultClient.Get(path, nil)
@@ -90,10 +91,16 @@ var RunCommand = cli.Command{
 			if err != nil {
 				return cli.NewExitError(err.Error(), 1)
 			}
-			if respOneoff.Oneoff.Status == "RUNNING" {
-				break
+			fmt.Println(respOneoff.Oneoff.Status)
+			switch respOneoff.Oneoff.Status {
+			case "RUNNING":
+				break LOOP
+			case "PENDING":
+				time.Sleep(3 * time.Second)
+			default:
+				// INACTIVE or STOPPED
+				return cli.NewExitError("Unexpected task status "+respOneoff.Oneoff.Status, 1)
 			}
-			time.Sleep(3 * time.Second)
 		}
 
 		fmt.Println("Connecting to the process")
