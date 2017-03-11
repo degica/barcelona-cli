@@ -91,7 +91,6 @@ var RunCommand = cli.Command{
 			if err != nil {
 				return cli.NewExitError(err.Error(), 1)
 			}
-			fmt.Println(respOneoff.Oneoff.Status)
 			switch respOneoff.Oneoff.Status {
 			case "RUNNING":
 				break LOOP
