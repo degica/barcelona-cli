@@ -18,15 +18,23 @@ var LoginCommand = cli.Command{
 	Name:      "login",
 	Usage:     "Login Barcelona",
 	ArgsUsage: "https://endpoint GITHUB_TOKEN",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "github-token",
+			Usage: "GitHub Token",
+		},
+	},
 	Action: func(c *cli.Context) error {
 		endpoint := c.Args().Get(0)
 		if len(endpoint) == 0 {
 			return cli.NewExitError("endpoint is required", 1)
 		}
-		token := c.Args().Get(1)
+		token := c.String("github-token")
 		if len(token) == 0 {
-			return cli.NewExitError("token is required", 1)
+			fmt.Println("Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new")
+			token = ask("GitHub Token", true, true)
 		}
+
 		user, err := api.DefaultClient.Login(endpoint, token)
 		if err != nil {
 			return cli.NewExitError(err.Error(), 1)
