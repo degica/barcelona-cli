@@ -18,6 +18,11 @@ var CreateCommand = cli.Command{
 			Value: "default",
 			Usage: "District name",
 		},
+		cli.StringFlag{
+			Name:  "tag, t",
+			Value: "latest",
+			Usage: "District name",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		h, err := LoadEnvironment(c.String("environment"))
@@ -25,6 +30,7 @@ var CreateCommand = cli.Command{
 			return cli.NewExitError(err.Error(), 1)
 		}
 		h.FillinDefaults()
+		h.ImageTag = c.String("tag")
 
 		resp, err := api.DefaultClient.CreateHeritage(c.String("district"), h)
 		if err != nil {
