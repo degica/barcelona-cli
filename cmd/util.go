@@ -33,9 +33,10 @@ func PrettyJSON(b []byte) string {
 func PrintHeritage(h *api.Heritage) {
 	fmt.Printf("Name:          %s\n", h.Name)
 	fmt.Printf("Image Name:    %s\n", h.ImageName)
+	fmt.Printf("Image Tag :    %s\n", h.ImageTag)
 	fmt.Printf("Version:       %d\n", h.Version)
 	if h.BeforeDeploy != nil {
-		fmt.Printf("Before Deploy: %s\n", h.BeforeDeploy)
+		fmt.Printf("Before Deploy: %s\n", *h.BeforeDeploy)
 	} else {
 		fmt.Printf("Before Deploy: None\n")
 	}
