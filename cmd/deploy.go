@@ -53,8 +53,8 @@ func doDeploy(env, tag string) (*api.Heritage, error) {
 		return nil, err
 	}
 
-	h.ImageTag = tag
 	h.FillinDefaults()
+	h.ImageTag = tag
 
 	j, err := json.Marshal(h)
 	if err != nil {
