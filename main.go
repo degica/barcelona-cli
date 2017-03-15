@@ -34,6 +34,7 @@ func main() {
 		cmd.SSHCommand,
 		cmd.ReleaseCommand,
 		cmd.NotificationCommand,
+		cmd.AppCommand,
 	}
 
 	app.Run(os.Args)
