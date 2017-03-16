@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -260,6 +263,75 @@ var DistrictCommand = cli.Command{
 				if err != nil {
 					return cli.NewExitError(err.Error(), 1)
 				}
+				return nil
+			},
+		},
+		{
+			Name:      "put-dockercfg",
+			Usage:     "Add or Replace dockercfg",
+			ArgsUsage: "DISTRICT_NAME",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "filename, f",
+					Usage: "FILENAME",
+				},
+				cli.StringFlag{
+					Name:  "config, c",
+					Usage: "JSON",
+				},
+				cli.BoolFlag{
+					Name:  "apply",
+					Usage: "Apply immediately",
+				},
+			},
+			Action: func(c *cli.Context) error {
+				districtName := c.Args().Get(0)
+				if len(districtName) == 0 {
+					return cli.NewExitError("district name is required", 1)
+				}
+
+				filename := c.String("filename")
+				config := c.String("config")
+
+				if len(filename) > 0 && len(config) > 0 {
+					return cli.NewExitError("filename and config are exclusive", 1)
+				}
+
+				var jsonBytes []byte
+				var err error
+				if len(filename) > 0 {
+					jsonBytes, err = ioutil.ReadFile(filename)
+					if err != nil {
+						return cli.NewExitError(err.Error(), 1)
+					}
+				} else if len(config) > 0 {
+					jsonBytes = []byte(config)
+				} else {
+					return cli.NewExitError("Specify dockercfg", 1)
+				}
+
+				var dockercfg interface{}
+				err = json.Unmarshal(jsonBytes, &dockercfg)
+				if err != nil {
+					return cli.NewExitError(err.Error(), 1)
+				}
+				params := make(map[string]interface{})
+				params["dockercfg"] = dockercfg
+				paramsB, err := json.Marshal(params)
+				if err != nil {
+					return cli.NewExitError(err.Error(), 1)
+				}
+
+				_, err = api.DefaultClient.Patch("/districts/"+districtName, bytes.NewBuffer(paramsB))
+				if err != nil {
+					return cli.NewExitError(err.Error(), 1)
+				}
+
+				err = applyOrNotice(districtName, c.Bool("apply"))
+				if err != nil {
+					return cli.NewExitError(err.Error(), 1)
+				}
+
 				return nil
 			},
 		},
