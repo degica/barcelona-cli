@@ -139,12 +139,9 @@ var DistrictCommand = cli.Command{
 				}
 				printDistrict(district)
 
-				if c.Bool("apply") {
-					err := api.DefaultClient.ApplyDistrict(districtName)
-					if err != nil {
-						return cli.NewExitError(err.Error(), 1)
-					}
-					fmt.Println("Applying network stack")
+				err = applyOrNotice(districtName, c.Bool("apply"))
+				if err != nil {
+					return cli.NewExitError(err.Error(), 1)
 				}
 
 				return nil
@@ -160,11 +157,11 @@ var DistrictCommand = cli.Command{
 					return cli.NewExitError("district name is required", 1)
 				}
 
-				err := api.DefaultClient.ApplyDistrict(districtName)
+				err := applyOrNotice(districtName, true)
 				if err != nil {
 					return cli.NewExitError(err.Error(), 1)
 				}
-				fmt.Println("Applying network stack")
+
 				return nil
 			},
 		},
@@ -257,6 +254,21 @@ var DistrictCommand = cli.Command{
 			},
 		},
 	},
+}
+
+func applyOrNotice(districtName string, apply bool) error {
+	if apply {
+		err := api.DefaultClient.ApplyDistrict(districtName)
+		if err != nil {
+			return err
+		}
+		fmt.Println("Applying network stack")
+	} else {
+		fmt.Println("The change has not been applied to the hosts.")
+		fmt.Println("Run `bcn district apply` to apply the change")
+	}
+
+	return nil
 }
 
 func printPlugin(p *api.Plugin) {
