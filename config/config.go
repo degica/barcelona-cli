@@ -69,6 +69,11 @@ func WriteLogin(login *Login) error {
 		return err
 	}
 
+	err = os.MkdirAll(ConfigDir, 0775)
+	if err != nil {
+		return err
+	}
+
 	err = ioutil.WriteFile(LoginFilePath, b, 0600)
 	if err != nil {
 		return err
