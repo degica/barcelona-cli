@@ -201,6 +201,10 @@ var DistrictCommand = cli.Command{
 					Name:  "attribute, a",
 					Usage: "ATTR_NAME=VALUE",
 				},
+				cli.BoolFlag{
+					Name:  "apply",
+					Usage: "Apply immediately",
+				},
 			},
 			Action: func(c *cli.Context) error {
 				districtName := c.Args().Get(0)
@@ -228,6 +232,12 @@ var DistrictCommand = cli.Command{
 					return cli.NewExitError(err.Error(), 1)
 				}
 				printPlugin(plugin)
+
+				err = applyOrNotice(districtName, c.Bool("apply"))
+				if err != nil {
+					return cli.NewExitError(err.Error(), 1)
+				}
+
 				return nil
 			},
 		},
