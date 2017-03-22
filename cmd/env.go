@@ -86,8 +86,12 @@ var EnvCommand = cli.Command{
 					}
 					heritageName = env.Name
 				}
-				pairs := make(map[string]string)
 				n := c.NArg()
+				if n == 0 {
+					return cli.NewExitError("Specify NAME=VALUE pairs", 1)
+				}
+
+				pairs := make(map[string]string)
 				for i := 0; i < n; i++ {
 					line := c.Args().Get(i)
 					pair := strings.SplitN(line, "=", 2)
