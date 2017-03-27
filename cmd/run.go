@@ -46,6 +46,9 @@ var RunCommand = cli.Command{
 			}
 			heritageName = env.Name
 		}
+		if len(c.Args()) == 0 {
+			return cli.NewExitError("Command is required", 1)
+		}
 		command := strings.Join(c.Args(), " ")
 		params := map[string]interface{}{
 			"interactive": true,
