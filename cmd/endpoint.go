@@ -160,7 +160,6 @@ var EndpointCommand = cli.Command{
 				if err != nil {
 					return cli.NewExitError(err.Error(), 1)
 				}
-				fmt.Println(string(b))
 
 				resp, err := api.DefaultClient.Request("PATCH", fmt.Sprintf("/districts/%s/endpoints/%s", c.String("district"), endpointName), bytes.NewBuffer(b))
 				if err != nil {
