@@ -33,6 +33,10 @@ var EndpointCommand = cli.Command{
 					Name:  "certificate-arn",
 					Usage: "ACM Certificate ARN",
 				},
+				cli.StringFlag{
+					Name:  "ssl-policy",
+					Usage: "HTTPS SSL Policy",
+				},
 			},
 			Action: func(c *cli.Context) error {
 				endpointName := c.Args().Get(0)
@@ -44,6 +48,7 @@ var EndpointCommand = cli.Command{
 					Name:          endpointName,
 					Public:        c.Bool("public"),
 					CertificateID: c.String("certificate-arn"),
+					SslPolicy:     c.String("ssl-policy"),
 				}
 
 				b, err := json.Marshal(&request)
@@ -135,6 +140,10 @@ var EndpointCommand = cli.Command{
 					Name:  "certificate-arn",
 					Usage: "ACM Certificate ARN",
 				},
+				cli.StringFlag{
+					Name:  "ssl-policy",
+					Usage: "HTTPS SSL Policy",
+				},
 			},
 			Action: func(c *cli.Context) error {
 				endpointName := c.Args().Get(0)
@@ -144,6 +153,7 @@ var EndpointCommand = cli.Command{
 
 				request := api.Endpoint{
 					CertificateID: c.String("certificate-arn"),
+					SslPolicy:     c.String("ssl-policy"),
 				}
 
 				b, err := json.Marshal(&request)
@@ -204,16 +214,17 @@ var EndpointCommand = cli.Command{
 func printEndpoint(e *api.Endpoint) {
 	fmt.Printf("Name: %s\n", e.Name)
 	fmt.Printf("Public: %t\n", e.Public)
+	fmt.Printf("SSL Policy: %s\n", e.SslPolicy)
 	fmt.Printf("Certificate ARN: %s\n", e.CertificateID)
 	fmt.Printf("DNS Name: %s\n", e.DNSName)
 }
 
 func printEndpoints(es []*api.Endpoint) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Name", "District", "Public", "Cert ID"})
+	table.SetHeader([]string{"Name", "District", "Public", "SSL Policy", "Cert ID"})
 	table.SetBorder(false)
 	for _, e := range es {
-		table.Append([]string{e.Name, e.District.Name, fmt.Sprintf("%t", e.Public), e.CertificateID})
+		table.Append([]string{e.Name, e.District.Name, fmt.Sprintf("%t", e.Public), e.SslPolicy, e.CertificateID})
 	}
 	table.Render()
 }

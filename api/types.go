@@ -197,6 +197,7 @@ type Endpoint struct {
 	Name          string `json:"name,omitempty"`
 	Public        bool   `json:"public,omitempty"`
 	CertificateID string `json:"certificate_id,omitempty"`
+	SslPolicy     string `json:"ssl_policy,omitempty"`
 	// Response only
 	DNSName  string    `json:"dns_name,omitempty"`
 	District *District `json:"district,omitempty"`
