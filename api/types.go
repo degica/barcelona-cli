@@ -137,11 +137,14 @@ func (s *Service) FillinDefaults() {
 }
 
 type Listener struct {
-	Endpoint            string          `yaml:"endpoint" json:"endpoint"`
-	HealthCheckInterval int             `yaml:"health_check_interval,omitempty" json:"health_check_interval,omitempty"`
-	HealthCheckPath     string          `yaml:"health_check_path,omitempty" json:"health_check_path,omitempty"`
-	RulePriority        int             `yaml:"rule_priority,omitempty" json:"rule_priority,omitempty"`
-	RuleConditions      []RuleCondition `yaml:"rule_conditions,omitempty" json:"rule_conditions,omitempty"`
+	Endpoint                string          `yaml:"endpoint" json:"endpoint"`
+	HealthCheckInterval     int             `yaml:"health_check_interval,omitempty" json:"health_check_interval,omitempty"`
+	HealthCheckPath         string          `yaml:"health_check_path,omitempty" json:"health_check_path,omitempty"`
+	HealthCheckTimeout      int             `yaml:"health_check_timeout,omitempty" json:"health_check_timeout,omitempty"`
+	HealthyThresholdCount   int             `yaml:"healthy_threshold_count,omitempty" json:"healthy_threshold_count,omitempty"`
+	UnhealthyThresholdCount int             `yaml:"unhealthy_threshold_count,omitempty" json:"unhealthy_threshold_count,omitempty"`
+	RulePriority            int             `yaml:"rule_priority,omitempty" json:"rule_priority,omitempty"`
+	RuleConditions          []RuleCondition `yaml:"rule_conditions,omitempty" json:"rule_conditions,omitempty"`
 }
 
 type RuleCondition struct {
