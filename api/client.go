@@ -107,8 +107,13 @@ func (cli *Client) Request(method string, path string, body io.Reader) ([]byte, 
 		return nil, err
 	}
 
-	if len(cli.login.Token) > 0 {
-		req.Header.Add("X-Barcelona-Token", cli.login.Token)
+	switch cli.login.Auth {
+	case "github":
+		if len(cli.login.Token) > 0 {
+			req.Header.Add("X-Barcelona-Token", cli.login.Token)
+		}
+	case "vault":
+		req.Header.Add("X-Vault-Token", cli.login.VaultToken)
 	}
 
 	return cli.rawRequest(req)
