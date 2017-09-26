@@ -198,7 +198,7 @@ type EndpointResponse struct {
 
 type Endpoint struct {
 	Name          string `json:"name,omitempty"`
-	Public        bool   `json:"public,omitempty"`
+	Public        bool   `json:"public"`
 	CertificateID string `json:"certificate_id,omitempty"`
 	SslPolicy     string `json:"ssl_policy,omitempty"`
 	// Response only
