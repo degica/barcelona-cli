@@ -72,16 +72,77 @@ type HeritageResponse struct {
 	Heritages []*Heritage `json:"heritages,omitempty"`
 }
 
+type EnvironmentPair struct {
+	Name      string  `yaml:"name" json:"name"`
+	Value     *string `yaml:"value,omitempty" json:"value,omitempty"`
+	ValueFrom *string `yaml:"value_from,omitempty" json:"value_from,omitempty"`
+	SsmPath   *string `yaml:"ssm_path,omitempty" json:"ssm_path,omitempty"`
+}
+
+type ReviewGroupRequest struct {
+	Name         string `json:"name"`
+	BaseDomain   string `json:"base_domain"`
+	EndpointName string `json:"endpoint"`
+}
+
+type ReviewGroup struct {
+	Name       string       `json:"name"`
+	BaseDomain string       `json:"base_domain"`
+	Endpoint   *Endpoint    `json:"endpoint"`
+	Token      *string      `json:"token,omitempty"`
+	ReviewApps []*ReviewApp `json:"review_apps,omitempty"`
+}
+
+type ReviewGroupResponse struct {
+	ReviewGroup  *ReviewGroup   `json:"review_group,omitempty"`
+	ReviewGroups []*ReviewGroup `json:"review_groups,omitempty"`
+}
+
+type ReviewAppService struct {
+	Cpu         int    `yaml:"cpu" json:"cpu"`
+	Memory      int    `yaml:"memory" json:"memory"`
+	Command     string `yaml:"command" json:"command"`
+	ServiceType string `yaml:"service_type" json:"service_type"`
+}
+
+type ReviewAppDefinition struct {
+	GroupName   string             `yaml:"group" json:"group_name"`
+	ImageName   string             `yaml:"image_name" json:"image_name"`
+	Environment []*EnvironmentPair `yaml:"environment" json:"environment"`
+	Service     *ReviewAppService  `yaml:"service" json:"service"`
+}
+
+type ReviewAppRequest struct {
+	*ReviewAppDefinition
+	Subject  string `json:"subject"`
+	ImageTag string `json:"image_tag"`
+}
+
+type ReviewApp struct {
+	Template    Heritage     `yaml:"template" json:"template,omitempty"`
+	Heritage    Heritage     `json:"heritage"`
+	Subject     string       `json:"subject"`
+	Tag         string       `json:"tag"`
+	Domain      string       `json:"domain"`
+	ReviewGroup *ReviewGroup `json:"review_group"`
+}
+
+type ReviewAppResponse struct {
+	ReviewApp  *ReviewApp   `json:"review_app,omitempty"`
+	ReviewApps []*ReviewApp `json:"review_apps,omitempty"`
+}
+
 type Heritage struct {
-	Name           string            `yaml:"name" json:"name"`
-	ImageName      string            `yaml:"image_name" json:"image_name"`
-	ImageTag       string            `yaml:"image_tag,omitempty" json:"image_tag,omitempty"`
-	BeforeDeploy   *string           `yaml:"before_deploy" json:"before_deploy"`
-	Version        int               `yaml:"version,omitempty" json:"version,omitempty"`
-	ScheduledTasks []*ScheduledTask  `yaml:"scheduled_tasks" json:"scheduled_tasks"`
-	Services       []*Service        `yaml:"services" json:"services"`
-	EnvVars        map[string]string `json:"env_vars,omitempty"`
-	Token          string            `json:"token,omitempty"`
+	Name           string             `yaml:"name" json:"name"`
+	ImageName      string             `yaml:"image_name" json:"image_name"`
+	ImageTag       string             `yaml:"image_tag,omitempty" json:"image_tag,omitempty"`
+	BeforeDeploy   *string            `yaml:"before_deploy" json:"before_deploy"`
+	Version        int                `yaml:"version,omitempty" json:"version,omitempty"`
+	ScheduledTasks []*ScheduledTask   `yaml:"scheduled_tasks" json:"scheduled_tasks"`
+	Services       []*Service         `yaml:"services" json:"services"`
+	EnvVars        map[string]string  `json:"env_vars,omitempty"`
+	Environment    []*EnvironmentPair `yaml:"environment" json:"environment"`
+	Token          string             `json:"token,omitempty"`
 }
 
 func (h *Heritage) FillinDefaults() {
