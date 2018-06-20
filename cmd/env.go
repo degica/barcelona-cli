@@ -173,8 +173,9 @@ var EnvCommand = cli.Command{
 	},
 }
 
-func printEnv(es map[string]string) {
+func printEnv(es map[string]interface{}) {
 	for name, value := range es {
+		// TODO
 		fmt.Printf("%s: %s\n", name, value)
 	}
 }

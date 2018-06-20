@@ -73,15 +73,15 @@ type HeritageResponse struct {
 }
 
 type Heritage struct {
-	Name           string            `yaml:"name" json:"name"`
-	ImageName      string            `yaml:"image_name" json:"image_name"`
-	ImageTag       string            `yaml:"image_tag,omitempty" json:"image_tag,omitempty"`
-	BeforeDeploy   *string           `yaml:"before_deploy" json:"before_deploy"`
-	Version        int               `yaml:"version,omitempty" json:"version,omitempty"`
-	ScheduledTasks []*ScheduledTask  `yaml:"scheduled_tasks" json:"scheduled_tasks"`
-	Services       []*Service        `yaml:"services" json:"services"`
-	EnvVars        map[string]string `json:"env_vars,omitempty"`
-	Token          string            `json:"token,omitempty"`
+	Name           string                 `yaml:"name" json:"name"`
+	ImageName      string                 `yaml:"image_name" json:"image_name"`
+	ImageTag       string                 `yaml:"image_tag,omitempty" json:"image_tag,omitempty"`
+	BeforeDeploy   *string                `yaml:"before_deploy" json:"before_deploy"`
+	Version        int                    `yaml:"version,omitempty" json:"version,omitempty"`
+	ScheduledTasks []*ScheduledTask       `yaml:"scheduled_tasks" json:"scheduled_tasks"`
+	Services       []*Service             `yaml:"services" json:"services"`
+	EnvVars        map[string]interface{} `yaml:"environment,omitempty" json:"env_vars,omitempty"`
+	Token          string                 `json:"token,omitempty"`
 }
 
 func (h *Heritage) FillinDefaults() {

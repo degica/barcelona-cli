@@ -35,6 +35,7 @@ func main() {
 		cmd.ReleaseCommand,
 		cmd.NotificationCommand,
 		cmd.AppCommand,
+		cmd.SecretCommand,
 	}
 
 	app.Run(os.Args)
