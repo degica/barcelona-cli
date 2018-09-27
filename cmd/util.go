@@ -10,11 +10,10 @@ import (
 	"strings"
 	"syscall"
 
-	yaml "gopkg.in/yaml.v2"
-
 	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/degica/barcelona-cli/api"
+	"github.com/ghodss/yaml"
 )
 
 func PrettyJSON(b []byte) string {

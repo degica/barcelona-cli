@@ -80,7 +80,7 @@ type Heritage struct {
 	Version        int                    `yaml:"version,omitempty" json:"version,omitempty"`
 	ScheduledTasks []*ScheduledTask       `yaml:"scheduled_tasks" json:"scheduled_tasks"`
 	Services       []*Service             `yaml:"services" json:"services"`
-	EnvVars        map[string]interface{} `yaml:"environment,omitempty" json:"env_vars,omitempty"`
+	EnvVars        map[string]interface{} `yaml:"env_vars,omitempty" json:"env_vars,omitempty"`
 	Token          string                 `json:"token,omitempty"`
 }
 
