@@ -32,6 +32,10 @@ var RunCommand = cli.Command{
 			Name:  "user, u",
 			Usage: "User name",
 		},
+		cli.BoolFlag{
+			Name:  "detach, D",
+			Usage: "Detach mode",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		envName := c.String("environment")
@@ -51,7 +55,7 @@ var RunCommand = cli.Command{
 		}
 		command := strings.Join(c.Args(), " ")
 		params := map[string]interface{}{
-			"interactive": true,
+			"interactive": !c.Bool("detach"),
 			"command":     command,
 		}
 		memory := c.Int("memory")
