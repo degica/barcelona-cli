@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/degica/barcelona-cli/api"
+
 	"github.com/urfave/cli"
 )
 
@@ -40,6 +41,7 @@ var RunCommand = cli.Command{
 	Action: func(c *cli.Context) error {
 		envName := c.String("environment")
 		heritageName := c.String("heritage-name")
+		detach := c.Bool("detach")
 		if len(envName) > 0 && len(heritageName) > 0 {
 			return cli.NewExitError("environment and heritage-name are exclusive", 1)
 		}
@@ -55,7 +57,7 @@ var RunCommand = cli.Command{
 		}
 		command := strings.Join(c.Args(), " ")
 		params := map[string]interface{}{
-			"interactive": !c.Bool("detach"),
+			"interactive": !detach,
 			"command":     command,
 		}
 		memory := c.Int("memory")
@@ -83,6 +85,11 @@ var RunCommand = cli.Command{
 		}
 		oneoff := respOneoff.Oneoff
 		certificate := respOneoff.Certificate
+
+		if detach {
+			PrintOneoff(oneoff)
+			return nil
+		}
 
 		fmt.Println("Waiting for the process to start")
 

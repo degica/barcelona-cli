@@ -52,6 +52,10 @@ func PrintHeritage(h *api.Heritage) {
 	}
 }
 
+func PrintOneoff(o *api.Oneoff) {
+	fmt.Printf("Task ARN: %s\n", o.TaskARN)
+}
+
 func fileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
