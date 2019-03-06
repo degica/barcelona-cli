@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/degica/barcelona-cli/api"
 	"github.com/olekukonko/tablewriter"
@@ -60,11 +61,26 @@ var ReviewCommand = cli.Command{
 					Name:  "token",
 					Usage: "review group token",
 				},
+				cli.StringFlag{
+					Name: "retention, r",
+				},
 			},
 			Action: func(c *cli.Context) error {
 				subject := c.Args().Get(0)
 				tag := c.String("tag")
 				token := c.String("token")
+				retention := c.String("retention")
+				var retentionSec int
+
+				if len(retention) == 0 {
+					retentionSec = 24 * 3600
+				} else {
+					d, err := time.ParseDuration(retention)
+					if err != nil {
+						return cli.NewExitError(err.Error(), 1)
+					}
+					retentionSec = int(d.Seconds())
+				}
 
 				reviewDef, err := LoadReviewDefinition()
 				if err != nil {
@@ -75,6 +91,7 @@ var ReviewCommand = cli.Command{
 					Request: &api.ReviewAppRequest{
 						ReviewAppDefinition: reviewDef,
 						Subject:             subject,
+						Retention:           retentionSec,
 						ImageTag:            tag,
 					},
 					Token: token,

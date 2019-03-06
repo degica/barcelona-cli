@@ -99,6 +99,8 @@ type ReviewGroupResponse struct {
 }
 
 type ReviewAppService struct {
+	Name        string `yaml:"name" json:"name"`
+	ForceSsl    bool   `yaml:"force_ssl" json:"force_ssl"`
 	Cpu         int    `yaml:"cpu" json:"cpu"`
 	Memory      int    `yaml:"memory" json:"memory"`
 	Command     string `yaml:"command" json:"command"`
@@ -106,16 +108,17 @@ type ReviewAppService struct {
 }
 
 type ReviewAppDefinition struct {
-	GroupName   string             `yaml:"group" json:"group_name"`
-	ImageName   string             `yaml:"image_name" json:"image_name"`
-	Environment []*EnvironmentPair `yaml:"environment" json:"environment"`
-	Service     *ReviewAppService  `yaml:"service" json:"service"`
+	GroupName   string              `yaml:"group" json:"group_name"`
+	ImageName   string              `yaml:"image_name" json:"image_name"`
+	Environment []*EnvironmentPair  `yaml:"environment" json:"environment"`
+	Services    []*ReviewAppService `yaml:"services" json:"services"`
 }
 
 type ReviewAppRequest struct {
 	*ReviewAppDefinition
-	Subject  string `json:"subject"`
-	ImageTag string `json:"image_tag"`
+	Subject   string `json:"subject"`
+	Retention int    `json:"retention"`
+	ImageTag  string `json:"image_tag"`
 }
 
 type ReviewApp struct {
