@@ -106,6 +106,7 @@ func areYouSure(message string) bool {
 
 type HeritageConfig struct {
 	Environments map[string]*api.Heritage `yaml:"environments" json:"environments"`
+	Review       *api.ReviewAppDefinition `yaml:"review" json:"review"`
 }
 
 func loadHeritageConfig() (*HeritageConfig, error) {
@@ -139,4 +140,16 @@ func LoadEnvironment(env string) (*api.Heritage, error) {
 		return nil, errors.New("environment is invalid")
 	}
 	return heritage, nil
+}
+
+func LoadReviewDefinition() (*api.ReviewAppDefinition, error) {
+	config, err := loadHeritageConfig()
+	if err != nil {
+		return nil, err
+	}
+	review := config.Review
+	if review == nil {
+		return nil, errors.New("reviewapp is invalid")
+	}
+	return review, nil
 }
