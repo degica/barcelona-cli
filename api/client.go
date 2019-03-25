@@ -109,6 +109,12 @@ func (cli *Client) Request(method string, path string, body io.Reader) ([]byte, 
 
 	if len(cli.login.Token) > 0 {
 		req.Header.Add("X-Barcelona-Token", cli.login.Token)
+	} else {
+		path, err := config.GetConfigPath()
+		if err != nil {
+			panic("Unable to get config path")
+		}
+		return nil, fmt.Errorf("Could not find your Github token inside of %s. Perhaps, you need to run bcn login?", path)
 	}
 
 	return cli.rawRequest(req)

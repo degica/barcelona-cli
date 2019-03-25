@@ -17,7 +17,7 @@ var CertPath string
 var Debug bool
 
 func init() {
-	path, err := getConfigPath()
+	path, err := GetConfigPath()
 	if err != nil {
 		panic("Couldn't get login path")
 	}
@@ -28,7 +28,7 @@ func init() {
 	CertPath = filepath.Join(ConfigDir, "id_ecdsa-cert.pub")
 }
 
-func getConfigPath() (string, error) {
+func GetConfigPath() (string, error) {
 	homedir, err := homedir.Dir()
 	if err != nil {
 		return "", err
