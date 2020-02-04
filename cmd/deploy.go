@@ -26,7 +26,7 @@ var DeployCommand = cli.Command{
 		},
 		cli.BoolFlag{
 			Name:  "quiet, q",
-			Usage: "Do not print output if successful"
+			Usage: "Do not print output if successful",
 		},
 	},
 	Action: func(c *cli.Context) error {
