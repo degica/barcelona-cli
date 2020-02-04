@@ -24,11 +24,16 @@ var DeployCommand = cli.Command{
 			Name:  "heritage-token",
 			Usage: "Heritage token",
 		},
+		cli.BoolFlag{
+			Name:  "quiet, q",
+			Usage: "Do not print output if successful",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		env := c.String("environment")
 		tag := c.String("tag")
 		token := c.String("heritage-token")
+		quiet := c.Bool("quiet")
 
 		var heritage *api.Heritage
 		var err error
@@ -41,7 +46,9 @@ var DeployCommand = cli.Command{
 			return cli.NewExitError(err.Error(), 1)
 		}
 
-		PrintHeritage(heritage)
+		if !quiet {
+			PrintHeritage(heritage)
+		}
 
 		return nil
 	},
