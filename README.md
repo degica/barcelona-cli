@@ -21,7 +21,7 @@ Requirements:
 ### Getting setup
 
 - Example GOPATH: `/home/my_home/go`
-- Clone this project into: `/home/my_home/go/src/github.com/degica
+- Clone this project into: `/home/my_home/go/src/github.com/degica`
 - `cd` into `barcelona-cli`
 - Run `glide install`
 
