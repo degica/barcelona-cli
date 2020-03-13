@@ -101,7 +101,7 @@ type ReviewGroupResponse struct {
 type ReviewAppService struct {
 	Name        string `yaml:"name" json:"name"`
 	ForceSsl    bool   `yaml:"force_ssl" json:"force_ssl"`
-	Cpu         int    `yaml:"cpu" json:"cpu"`
+	Cpu         int    `yaml:"cpu" json:"cpu,omitempty"`
 	Memory      int    `yaml:"memory" json:"memory"`
 	Command     string `yaml:"command" json:"command"`
 	ServiceType string `yaml:"service_type" json:"service_type"`
