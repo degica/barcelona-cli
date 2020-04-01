@@ -40,7 +40,7 @@ func (com *DeployReviewApp) Execute() error {
 	if err != nil {
 		return cli.NewExitError(err.Error(), 1)
 	}
-	fmt.Printf("Domain: %s", rResp.ReviewApp.Domain)
+	fmt.Printf("Domain: %s\n", rResp.ReviewApp.Domain)
 
 	return nil
 }
