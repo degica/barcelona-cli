@@ -101,7 +101,7 @@ type ReviewGroupResponse struct {
 type ReviewAppService struct {
 	Name        string `yaml:"name" json:"name"`
 	ForceSsl    bool   `yaml:"force_ssl" json:"force_ssl"`
-	Cpu         int    `yaml:"cpu" json:"cpu"`
+	Cpu         int    `yaml:"cpu" json:"cpu,omitempty"`
 	Memory      int    `yaml:"memory" json:"memory"`
 	Command     string `yaml:"command" json:"command"`
 	ServiceType string `yaml:"service_type" json:"service_type"`
@@ -163,7 +163,7 @@ func (h *Heritage) FillinDefaults() {
 type Service struct {
 	Public       *bool          `yaml:"public,omitempty" json:"public,omitempty"`
 	Name         string         `yaml:"name" json:"name"`
-	Cpu          int            `yaml:"cpu" json:"cpu"`
+	Cpu          int            `yaml:"cpu" json:"cpu,omitempty"`
 	Memory       int            `yaml:"memory" json:"memory"`
 	Command      string         `yaml:"command" json:"command"`
 	ServiceType  string         `yaml:"service_type" json:"service_type"`
@@ -179,10 +179,6 @@ type Service struct {
 }
 
 func (s *Service) FillinDefaults() {
-	if s.Cpu == 0 {
-		s.Cpu = 512
-	}
-
 	if s.Memory == 0 {
 		s.Memory = 512
 	}
