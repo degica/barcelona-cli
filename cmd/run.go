@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"errors"
 	"strings"
 	"time"
 
@@ -37,20 +39,38 @@ var RunCommand = cli.Command{
 			Name:  "detach, D",
 			Usage: "Detach mode",
 		},
+		cli.StringSliceFlag{
+			Name:  "envvar, E",
+			Usage: "Environment variable to pass to task",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		envName := c.String("environment")
 		heritageName := c.String("heritage-name")
 		detach := c.Bool("detach")
+		envVars := c.StringSlice("envvar")
+		envVarMap := make(map[string]string)
 		if len(envName) > 0 && len(heritageName) > 0 {
 			return cli.NewExitError("environment and heritage-name are exclusive", 1)
 		}
 		if len(envName) > 0 {
-			env, err := LoadEnvironment(c.String("environment"))
+			env, err := LoadEnvironment(envName)
 			if err != nil {
 				return cli.NewExitError(err.Error(), 1)
 			}
 			heritageName = env.Name
+			for k, v := range env.RunEnv.Vars {
+				envVarMap[k] = v
+			}
+		}
+		if len(envVars) > 0 {
+			varmap, err := checkEnvVars(envVars)
+			if err != nil {
+				return cli.NewExitError(err.Error(), 1)
+			}
+			for k, v := range varmap {
+				envVarMap[k] = v
+			}
 		}
 		if len(c.Args()) == 0 {
 			return cli.NewExitError("Command is required", 1)
@@ -59,6 +79,7 @@ var RunCommand = cli.Command{
 		params := map[string]interface{}{
 			"interactive": !detach,
 			"command":     command,
+			"env_vars":    envVarMap,
 		}
 		memory := c.Int("memory")
 		if memory > 0 {
@@ -137,4 +158,17 @@ var RunCommand = cli.Command{
 
 		return nil
 	},
+}
+
+func checkEnvVars(envvarSlice []string) (map[string]string, error) {
+		var result = make(map[string]string)
+
+		re := regexp.MustCompile(`^([A-Z_]+)=(.*)$`)
+		for _, envvar := range envvarSlice {
+			if !re.Match([]byte(envvar)) {
+				return nil, errors.New(fmt.Sprintf("Env Variable  %s  is not valid. Name must have PASCAL_CASE=", envvar))
+			}
+			result[re.FindStringSubmatch(envvar)[1]] = re.FindStringSubmatch(envvar)[2]
+		}
+		return result, nil
 }
