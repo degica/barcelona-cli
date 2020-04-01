@@ -135,6 +135,10 @@ type ReviewAppResponse struct {
 	ReviewApps []*ReviewApp `json:"review_apps,omitempty"`
 }
 
+type RunEnv struct {
+	Vars           map[string]string  `yaml:"vars" json:"vars"`
+}
+
 type Heritage struct {
 	Name           string             `yaml:"name" json:"name"`
 	ImageName      string             `yaml:"image_name" json:"image_name"`
@@ -146,6 +150,7 @@ type Heritage struct {
 	EnvVars        map[string]string  `json:"env_vars,omitempty"`
 	Environment    []*EnvironmentPair `yaml:"environment" json:"environment"`
 	Token          string             `json:"token,omitempty"`
+	RunEnv         *RunEnv            `yaml:"run_env,omitempty" json:"run_env,omitempty"`
 }
 
 func (h *Heritage) FillinDefaults() {
