@@ -160,7 +160,6 @@ func loadEnvVars(envName string, heritageName string) (map[string]string, error)
 		if err != nil {
 			return nil, err
 		}
-		heritageName = env.Name
 		for k, v := range env.RunEnv.Vars {
 			result[k] = v
 		}
