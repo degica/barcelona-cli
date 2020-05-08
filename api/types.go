@@ -172,6 +172,7 @@ type Service struct {
 	Memory       int            `yaml:"memory" json:"memory"`
 	Command      string         `yaml:"command" json:"command"`
 	ServiceType  string         `yaml:"service_type" json:"service_type"`
+	WebContainerPort int `yaml:"web_container_port" json:"web_container_port"`
 	ForceSsl     bool           `yaml:"force_ssl" json:"force_ssl"`
 	PortMappings []*PortMapping `yaml:"port_mappings,omitempty" json:"port_mappings,omitempty"`
 	Hosts        []*Host        `yaml:"hosts" json:"hosts"`
