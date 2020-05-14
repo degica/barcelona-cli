@@ -1,0 +1,33 @@
+---
+name: build
+jobs:
+  build:
+    container:
+      image: golang:latest
+      env:
+        REPO_NAME: github.com/degica/barcelona-cli
+        GLIDE_VERSION: 0.13.3
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup
+      run: |-
+        mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
+        ln -svf $GITHUB_WORKSPACE $GOPATH/src/$REPO_NAME
+        cd $GOPATH/src/$REPO_NAME
+        wget https://github.com/Masterminds/glide/releases/download/v$GLIDE_VERSION/glide-v$GLIDE_VERSION-linux-amd64.tar.gz
+        tar -xvf glide-v$GLIDE_VERSION-linux-amd64.tar.gz
+    - name: script
+      run: |-
+        export PATH="$(pwd)/linux-amd64:$GOPATH/bin:$PATH"
+        cd $GOPATH/src/$REPO_NAME
+        pwd
+        glide install
+        make
+'on':
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
