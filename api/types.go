@@ -136,7 +136,7 @@ type ReviewAppResponse struct {
 }
 
 type RunEnv struct {
-	Vars           map[string]string  `yaml:"vars" json:"vars"`
+	Vars map[string]string `yaml:"vars" json:"vars"`
 }
 
 type Heritage struct {
@@ -151,6 +151,7 @@ type Heritage struct {
 	Environment    []*EnvironmentPair `yaml:"environment" json:"environment"`
 	Token          string             `json:"token,omitempty"`
 	RunEnv         *RunEnv            `yaml:"run_env,omitempty" json:"run_env,omitempty"`
+	LogDriver      string             `yaml:"log_driver,omitempty" json:"log_driver,omitempty"`
 }
 
 func (h *Heritage) FillinDefaults() {
@@ -166,17 +167,17 @@ func (h *Heritage) FillinDefaults() {
 }
 
 type Service struct {
-	Public       *bool          `yaml:"public,omitempty" json:"public,omitempty"`
-	Name         string         `yaml:"name" json:"name"`
-	Cpu          int            `yaml:"cpu" json:"cpu,omitempty"`
-	Memory       int            `yaml:"memory" json:"memory"`
-	Command      string         `yaml:"command" json:"command"`
-	ServiceType  string         `yaml:"service_type" json:"service_type"`
-	WebContainerPort int `yaml:"web_container_port" json:"web_container_port"`
-	ForceSsl     bool           `yaml:"force_ssl" json:"force_ssl"`
-	PortMappings []*PortMapping `yaml:"port_mappings,omitempty" json:"port_mappings,omitempty"`
-	Hosts        []*Host        `yaml:"hosts" json:"hosts"`
-	Listeners    []*Listener    `yaml:"listeners" json:"listeners"`
+	Public           *bool          `yaml:"public,omitempty" json:"public,omitempty"`
+	Name             string         `yaml:"name" json:"name"`
+	Cpu              int            `yaml:"cpu" json:"cpu,omitempty"`
+	Memory           int            `yaml:"memory" json:"memory"`
+	Command          string         `yaml:"command" json:"command"`
+	ServiceType      string         `yaml:"service_type" json:"service_type"`
+	WebContainerPort int            `yaml:"web_container_port" json:"web_container_port"`
+	ForceSsl         bool           `yaml:"force_ssl" json:"force_ssl"`
+	PortMappings     []*PortMapping `yaml:"port_mappings,omitempty" json:"port_mappings,omitempty"`
+	Hosts            []*Host        `yaml:"hosts" json:"hosts"`
+	Listeners        []*Listener    `yaml:"listeners" json:"listeners"`
 	// Response only parameters
 	Status       string `json:"string,omitempty"`
 	RunningCount int    `json:"running_count,omitempty"`
