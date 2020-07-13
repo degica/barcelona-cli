@@ -5,7 +5,7 @@ import (
 )
 
 func TestCheckEnvVars(t *testing.T) {
-	result, err := checkEnvVars([]string {"ABC=def", "GHI=jkl"})
+	result, err := checkEnvVars([]string{"ABC=def", "GHI=jkl"})
 
 	if err != nil {
 		t.Errorf("Expected there to be no error but got: %s", err)
@@ -21,7 +21,7 @@ func TestCheckEnvVars(t *testing.T) {
 }
 
 func TestCheckEnvVarsError(t *testing.T) {
-	result, err := checkEnvVars([]string {"ABCd=def", "GHI=jkl"})
+	result, err := checkEnvVars([]string{"ABCd=def", "GHI=jkl"})
 
 	if err == nil {
 		t.Errorf("Expected to be an error but was nil")
