@@ -165,7 +165,7 @@ var RunCommand = cli.Command{
 	},
 }
 
-func loadEnvVars(envName string, heritageName string) (map[string]string, error) {
+func loadEnvVars(envName string) (map[string]string, error) {
 	result := make(map[string]string)
 	if len(envName) > 0 {
 		env, err := LoadEnvironment(envName)
