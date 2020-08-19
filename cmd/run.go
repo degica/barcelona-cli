@@ -49,20 +49,24 @@ var RunCommand = cli.Command{
 		heritageName := c.String("heritage-name")
 		detach := c.Bool("detach")
 		envVars := c.StringSlice("envvar")
-		envVarMap := make(map[string]string)
+		envVarMap, loadEnvVarMapErr := loadEnvVars(envName)
+
+		if loadEnvVarMapErr != nil {
+			return cli.NewExitError(loadEnvVarMapErr.Error(), 1)
+		}
+
 		if len(envName) > 0 && len(heritageName) > 0 {
 			return cli.NewExitError("environment and heritage-name are exclusive", 1)
 		}
-		if len(envName) > 0 {
+
+		if len(heritageName) == 0 {
 			env, err := LoadEnvironment(envName)
-			if err != nil {
-				return cli.NewExitError(err.Error(), 1)
-			}
+ 			if err != nil {
+ 				return cli.NewExitError(err.Error(), 1)
+ 			}
 			heritageName = env.Name
-			for k, v := range env.RunEnv.Vars {
-				envVarMap[k] = v
-			}
 		}
+
 		if len(envVars) > 0 {
 			varmap, err := checkEnvVars(envVars)
 			if err != nil {
@@ -72,6 +76,7 @@ var RunCommand = cli.Command{
 				envVarMap[k] = v
 			}
 		}
+
 		if len(c.Args()) == 0 {
 			return cli.NewExitError("Command is required", 1)
 		}
@@ -158,6 +163,22 @@ var RunCommand = cli.Command{
 
 		return nil
 	},
+}
+
+func loadEnvVars(envName string) (map[string]string, error) {
+	result := make(map[string]string)
+	if len(envName) > 0 {
+		env, err := LoadEnvironment(envName)
+		if err != nil {
+			return nil, err
+		}
+		if env.RunEnv != nil {
+			for k, v := range env.RunEnv.Vars {
+				result[k] = v
+			}
+		}
+	}
+	return result, nil
 }
 
 func checkEnvVars(envvarSlice []string) (map[string]string, error) {
