@@ -49,7 +49,7 @@ var RunCommand = cli.Command{
 		heritageName := c.String("heritage-name")
 		detach := c.Bool("detach")
 		envVars := c.StringSlice("envvar")
-		envVarMap, loadEnvVarMapErr := loadEnvVars(envName, heritageName)
+		envVarMap, loadEnvVarMapErr := loadEnvVars(envName)
 
 		if loadEnvVarMapErr != nil {
 			return cli.NewExitError(loadEnvVarMapErr.Error(), 1)
