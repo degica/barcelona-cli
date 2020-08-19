@@ -3,9 +3,9 @@ package cmd
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
-	"errors"
 	"strings"
 	"time"
 
@@ -161,14 +161,14 @@ var RunCommand = cli.Command{
 }
 
 func checkEnvVars(envvarSlice []string) (map[string]string, error) {
-		var result = make(map[string]string)
+	var result = make(map[string]string)
 
-		re := regexp.MustCompile(`^([A-Z_]+)=(.*)$`)
-		for _, envvar := range envvarSlice {
-			if !re.Match([]byte(envvar)) {
-				return nil, errors.New(fmt.Sprintf("Env Variable  %s  is not valid. Name must have PASCAL_CASE=", envvar))
-			}
-			result[re.FindStringSubmatch(envvar)[1]] = re.FindStringSubmatch(envvar)[2]
+	re := regexp.MustCompile(`^([A-Z_]+)=(.*)$`)
+	for _, envvar := range envvarSlice {
+		if !re.Match([]byte(envvar)) {
+			return nil, errors.New(fmt.Sprintf("Env Variable  %s  is not valid. Name must have PASCAL_CASE=", envvar))
 		}
-		return result, nil
+		result[re.FindStringSubmatch(envvar)[1]] = re.FindStringSubmatch(envvar)[2]
+	}
+	return result, nil
 }
