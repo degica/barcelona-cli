@@ -113,7 +113,7 @@ func (cli *Client) Request(method string, path string, body io.Reader) ([]byte, 
 			req.Header.Add("X-Barcelona-Token", cli.login.Token)
 		}
 	case "vault":
-		req.Header.Add("X-Vault-Token", cli.login.VaultToken)
+		req.Header.Add("X-Vault-Token", cli.login.Token)
 	}
 
 	return cli.rawRequest(req)

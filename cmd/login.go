@@ -22,7 +22,7 @@ var LoginCommand = cli.Command{
 		cli.StringFlag{
 			Name:  "auth, a",
 			Usage: "Auth backend",
-			Value: "github",
+			Value: "vault",
 		},
 		cli.StringFlag{
 			Name:  "github-token",
@@ -45,6 +45,7 @@ var LoginCommand = cli.Command{
 		auth := c.String("auth")
 		switch auth {
 		case "github":
+			fmt.Println("Logging in with Github")
 			token := c.String("github-token")
 			if len(token) == 0 {
 				fmt.Println("Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new")
@@ -66,12 +67,11 @@ var LoginCommand = cli.Command{
 				return cli.NewExitError(err.Error(), 1)
 			}
 		case "vault":
+			fmt.Println("Logging in with Vault")
 			vaultToken := c.String("vault-token")
 			if len(vaultToken) == 0 {
-				vaultToken, err = config.GetDefaultVaultToken()
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
+				fmt.Println("Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new")
+				vaultToken = ask("GitHub Token", true, true)
 			}
 			user, err = api.DefaultClient.LoginWithVault(endpoint, vaultToken)
 			if err != nil {
@@ -80,6 +80,7 @@ var LoginCommand = cli.Command{
 
 			login := config.Login{
 				Auth:       auth,
+				Token:      user.Token,
 				VaultToken: vaultToken,
 				Endpoint:   endpoint,
 			}

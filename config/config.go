@@ -44,16 +44,6 @@ type Login struct {
 	Endpoint   string `json:"endpoint"`
 }
 
-func GetDefaultVaultToken() (string, error) {
-	homedir, err := homedir.Dir()
-	if err != nil {
-		return "", err
-	}
-	tokenPath := filepath.Join(homedir, ".vault-token")
-	vaultToken, err := ioutil.ReadFile(tokenPath)
-	return string(vaultToken), err
-}
-
 func LoadLogin() *Login {
 	var login Login
 	loginJSON, err := ioutil.ReadFile(LoginFilePath)
