@@ -22,7 +22,7 @@ var LoginCommand = cli.Command{
 		cli.StringFlag{
 			Name:  "auth, a",
 			Usage: "Auth backend",
-			Value: "vault",
+			Value: "github",
 		},
 		cli.StringFlag{
 			Name:  "github-token",
