@@ -141,7 +141,7 @@ var LoginCommand = cli.Command{
 			Name:  "info",
 			Usage: "Show login information",
 			Action: func(c *cli.Context) error {
-				oper := operations.NewLoginInfoOperation()
+				oper := operations.NewLoginInfoOperation(config.Get())
 				return oper.Run()
 			},
 		},

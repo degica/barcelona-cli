@@ -7,15 +7,18 @@ import (
 )
 
 type LoginInfoOperation struct {
+	cfg config.Configuration
 }
 
-func NewLoginInfoOperation() *LoginInfoOperation {
-    // set only specific field value with field key
-    return &LoginInfoOperation{}
+func NewLoginInfoOperation(cfg config.Configuration) *LoginInfoOperation {
+	// set only specific field value with field key
+	return &LoginInfoOperation{
+		cfg: cfg,
+	}
 }
 
 func (oper LoginInfoOperation) Run() error {
-	login := config.LoadLogin()
+	login := oper.cfg.LoadLogin()
 
 	fmt.Printf("Endpoint: %s\n", login.Endpoint)
   fmt.Printf("Auth:     %s\n", login.Auth)

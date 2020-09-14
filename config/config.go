@@ -16,6 +16,23 @@ var PublicKeyPath string
 var CertPath string
 var Debug bool
 
+// This is the interface clients should use to extract config info
+type Configuration interface {
+	LoadLogin() *Login
+}
+
+// Clients should get configs using this function
+func Get() Configuration {
+	return &localConfig{}
+}
+
+// Implementation of our Configuration object
+type localConfig struct{}
+
+func (m localConfig) LoadLogin() *Login {
+	return LoadLogin()
+}
+
 func init() {
 	path, err := getConfigPath()
 	if err != nil {
