@@ -11,6 +11,7 @@ import (
 
 	"github.com/degica/barcelona-cli/api"
 	"github.com/degica/barcelona-cli/config"
+	"github.com/degica/barcelona-cli/operations"
 	"github.com/urfave/cli"
 )
 
@@ -140,11 +141,8 @@ var LoginCommand = cli.Command{
 			Name:  "info",
 			Usage: "Show login information",
 			Action: func(c *cli.Context) error {
-				login := config.LoadLogin()
-
-				fmt.Printf("Endpoint: %s\n", login.Endpoint)
-				fmt.Printf("Auth:     %s\n", login.Auth)
-				return nil
+				oper := operations.NewLoginInfoOperation()
+				return oper.Run()
 			},
 		},
 	},
