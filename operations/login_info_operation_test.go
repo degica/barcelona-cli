@@ -13,7 +13,7 @@ func (m mockConfig) LoadLogin() *config.Login {
 	}
 }
 
-func ExampleLoginInfoOperationOutput() {
+func ExampleLoginInfoOperation_Run_output() {
 
 	op := NewLoginInfoOperation(&mockConfig{})
 	op.Run()
