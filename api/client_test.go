@@ -1,6 +1,6 @@
 package api
 
-func ExampleDump_barcelonatoken() {
+func Example_dump_barcelonatoken() {
 
 	dump([]byte("X-Barcelona-Token: abcdefg"), nil)
 
@@ -8,7 +8,7 @@ func ExampleDump_barcelonatoken() {
 	// X-Barcelona-Token: [filtered]
 }
 
-func ExampleDump_githubtoken() {
+func Example_dump_githubtoken() {
 
 	dump([]byte("X-Github-Token: abcdefg"), nil)
 
@@ -16,7 +16,7 @@ func ExampleDump_githubtoken() {
 	// X-Github-Token: [filtered]
 }
 
-func ExampleDump_vaulttoken() {
+func Example_dump_vaulttoken() {
 
 	dump([]byte("X-Vault-Token: abcdefg"), nil)
 
@@ -24,7 +24,7 @@ func ExampleDump_vaulttoken() {
 	// X-Vault-Token: [filtered]
 }
 
-func ExampleDump_nottoken() {
+func Example_dump_nottoken() {
 
 	dump([]byte("String: abcdefg"), nil)
 

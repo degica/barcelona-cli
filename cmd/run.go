@@ -61,9 +61,9 @@ var RunCommand = cli.Command{
 
 		if len(heritageName) == 0 {
 			env, err := LoadEnvironment(envName)
- 			if err != nil {
- 				return cli.NewExitError(err.Error(), 1)
- 			}
+			if err != nil {
+				return cli.NewExitError(err.Error(), 1)
+			}
 			heritageName = env.Name
 		}
 
