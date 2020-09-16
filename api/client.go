@@ -107,8 +107,13 @@ func (cli *Client) Request(method string, path string, body io.Reader) ([]byte, 
 		return nil, err
 	}
 
-	if len(cli.login.Token) > 0 {
-		req.Header.Add("X-Barcelona-Token", cli.login.Token)
+	switch cli.login.Auth {
+	case "github":
+		if len(cli.login.Token) > 0 {
+			req.Header.Add("X-Barcelona-Token", cli.login.Token)
+		}
+	case "vault":
+		req.Header.Add("X-Vault-Token", cli.login.Token)
 	}
 
 	return cli.rawRequest(req)
@@ -136,7 +141,7 @@ func (cli *Client) Delete(path string, body io.Reader) ([]byte, error) {
 
 func dump(dump []byte, err error) {
 	s := string(dump)
-	regex, err := regexp.Compile("(X-Github-Token|X-Barcelona-Token): ([0-9A-Za-z]+)")
+	regex, err := regexp.Compile("(Token): ([0-9A-Za-z]+)")
 	if err != nil {
 		panic(err.Error())
 	}

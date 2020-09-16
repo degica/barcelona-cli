@@ -20,8 +20,17 @@ var LoginCommand = cli.Command{
 	ArgsUsage: "https://endpoint GITHUB_TOKEN",
 	Flags: []cli.Flag{
 		cli.StringFlag{
+			Name:  "auth, a",
+			Usage: "Auth backend",
+			Value: "github",
+		},
+		cli.StringFlag{
 			Name:  "github-token",
 			Usage: "GitHub Token",
+		},
+		cli.StringFlag{
+			Name:  "vault-token",
+			Usage: "Vault Token",
 		},
 	},
 	Action: func(c *cli.Context) error {
@@ -29,24 +38,58 @@ var LoginCommand = cli.Command{
 		if len(endpoint) == 0 {
 			return cli.NewExitError("endpoint is required", 1)
 		}
-		token := c.String("github-token")
-		if len(token) == 0 {
-			fmt.Println("Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new")
-			token = ask("GitHub Token", true, true)
-		}
 
-		user, err := api.DefaultClient.Login(endpoint, token)
-		if err != nil {
-			return cli.NewExitError(err.Error(), 1)
-		}
+		var user *api.User
+		var err error
 
-		login := config.Login{
-			Token:    user.Token,
-			Endpoint: endpoint,
-		}
-		err = config.WriteLogin(&login)
-		if err != nil {
-			return cli.NewExitError(err.Error(), 1)
+		auth := c.String("auth")
+		switch auth {
+		case "github":
+			fmt.Println("Logging in with Github")
+			token := c.String("github-token")
+			if len(token) == 0 {
+				fmt.Println("Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new")
+				token = ask("GitHub Token", true, true)
+			}
+
+			user, err = api.DefaultClient.LoginWithGithub(endpoint, token)
+			if err != nil {
+				return cli.NewExitError(err.Error(), 1)
+			}
+
+			login := config.Login{
+				Auth:     auth,
+				Token:    user.Token,
+				Endpoint: endpoint,
+			}
+			err = config.WriteLogin(&login)
+			if err != nil {
+				return cli.NewExitError(err.Error(), 1)
+			}
+		case "vault":
+			fmt.Println("Logging in with Vault")
+			vaultToken := c.String("vault-token")
+			if len(vaultToken) == 0 {
+				fmt.Println("Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new")
+				vaultToken = ask("GitHub Token", true, true)
+			}
+			user, err = api.DefaultClient.LoginWithVault(endpoint, vaultToken)
+			if err != nil {
+				return cli.NewExitError(err.Error(), 1)
+			}
+
+			login := config.Login{
+				Auth:       auth,
+				Token:      user.Token,
+				VaultToken: vaultToken,
+				Endpoint:   endpoint,
+			}
+			err = config.WriteLogin(&login)
+			if err != nil {
+				return cli.NewExitError(err.Error(), 1)
+			}
+		default:
+			return cli.NewExitError("Unrecognized auth backend", 1)
 		}
 
 		keyExists := fileExists(config.PublicKeyPath)
@@ -100,6 +143,7 @@ var LoginCommand = cli.Command{
 				login := config.LoadLogin()
 
 				fmt.Printf("Endpoint: %s\n", login.Endpoint)
+				fmt.Printf("Auth:     %s\n", login.Auth)
 				return nil
 			},
 		},
