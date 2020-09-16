@@ -141,7 +141,7 @@ func (cli *Client) Delete(path string, body io.Reader) ([]byte, error) {
 
 func dump(dump []byte, err error) {
 	s := string(dump)
-	regex, err := regexp.Compile("(X-Github-Token|X-Barcelona-Token): ([0-9A-Za-z]+)")
+	regex, err := regexp.Compile("(Token): ([0-9A-Za-z]+)")
 	if err != nil {
 		panic(err.Error())
 	}
