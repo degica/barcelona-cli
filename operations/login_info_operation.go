@@ -21,7 +21,7 @@ func (oper LoginInfoOperation) Run() error {
 	login := oper.cfg.LoadLogin()
 
 	fmt.Printf("Endpoint: %s\n", login.Endpoint)
-  fmt.Printf("Auth:     %s\n", login.Auth)
+	fmt.Printf("Auth:     %s\n", login.Auth)
 
 	return nil
 }

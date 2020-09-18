@@ -8,7 +8,7 @@ type mockConfig struct{}
 
 func (m mockConfig) LoadLogin() *config.Login {
 	return &config.Login{
-		Auth: "vault",
+		Auth:     "vault",
 		Endpoint: "https://test.example.com",
 	}
 }
