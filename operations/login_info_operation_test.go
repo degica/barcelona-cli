@@ -8,7 +8,7 @@ type mockConfig struct{}
 
 func (m mockConfig) LoadLogin() *config.Login {
 	return &config.Login{
-		Token:    "",
+		Auth: "vault",
 		Endpoint: "https://test.example.com",
 	}
 }
@@ -20,4 +20,5 @@ func ExampleLoginInfoOperation_Run_output() {
 
 	// Output:
 	// Endpoint: https://test.example.com
+	// Auth:     vault
 }
