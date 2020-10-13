@@ -17,11 +17,11 @@ func NewLoginInfoOperation(cfg config.Configuration) *LoginInfoOperation {
 	}
 }
 
-func (oper LoginInfoOperation) Run() error {
+func (oper LoginInfoOperation) run() *runResult {
 	login := oper.cfg.LoadLogin()
 
 	fmt.Printf("Endpoint: %s\n", login.Endpoint)
 	fmt.Printf("Auth:     %s\n", login.Auth)
 
-	return nil
+	return ok_result()
 }
