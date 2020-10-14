@@ -40,3 +40,10 @@ func ok_result() *runResult {
 		is_error: false,
 	}
 }
+
+type OperationType string
+
+const (
+	Delete OperationType = "Delete"
+	Show                 = "Show"
+)

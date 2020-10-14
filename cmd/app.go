@@ -1,10 +1,9 @@
 package cmd
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/degica/barcelona-cli/api"
+	"github.com/degica/barcelona-cli/operations"
+	"github.com/degica/barcelona-cli/utils"
 	"github.com/urfave/cli"
 )
 
@@ -23,22 +22,9 @@ var AppCommand = cli.Command{
 			},
 			Action: func(c *cli.Context) error {
 				name := c.Args().Get(0)
-				if len(name) == 0 {
-					return cli.NewExitError("district name is required", 1)
-				}
 
-				fmt.Printf("You are attempting to delete %s\n", name)
-				if !c.Bool("no-confirmation") && !areYouSure("This operation cannot be undone. Are you sure?") {
-					return nil
-				}
-
-				_, err := api.DefaultClient.Delete("/heritages/"+name, nil)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				fmt.Printf("Deleted %s\n", name)
-
-				return nil
+				oper := operations.NewAppOperation(name, operations.Delete, c.Bool("no-confirmation"), api.DefaultClient, utils.NewStdinInputReader())
+				return operations.Execute(oper)
 			},
 		},
 		{
@@ -47,22 +33,9 @@ var AppCommand = cli.Command{
 			ArgsUsage: "HERITAGE_NAME",
 			Action: func(c *cli.Context) error {
 				name := c.Args().Get(0)
-				if len(name) == 0 {
-					return cli.NewExitError("district name is required", 1)
-				}
 
-				resp, err := api.DefaultClient.Get("/heritages/"+name, nil)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				var hResp api.HeritageResponse
-				err = json.Unmarshal(resp, &hResp)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				PrintHeritage(hResp.Heritage)
-
-				return nil
+				oper := operations.NewAppOperation(name, operations.Show, false, api.DefaultClient, utils.NewStdinInputReader())
+				return operations.Execute(oper)
 			},
 		},
 	},

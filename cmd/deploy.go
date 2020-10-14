@@ -47,7 +47,7 @@ var DeployCommand = cli.Command{
 		}
 
 		if !quiet {
-			PrintHeritage(heritage)
+			heritage.Print()
 		}
 
 		return nil

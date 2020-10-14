@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/degica/barcelona-cli/api"
+	"github.com/degica/barcelona-cli/utils"
 	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli"
 )
@@ -53,8 +54,8 @@ var DistrictCommand = cli.Command{
 					ClusterInstanceType: c.String("cluster-instance-type"),
 					ClusterBackend:      "autoscaling",
 				}
-				request.AwsAccessKeyId = ask("AWS Access Key ID", true, false)
-				request.AwsSecretAccessKey = ask("AWS Secret Access Key", true, true)
+				request.AwsAccessKeyId = utils.Ask("AWS Access Key ID", true, false, utils.NewStdinInputReader())
+				request.AwsSecretAccessKey = utils.Ask("AWS Secret Access Key", true, true, utils.NewStdinInputReader())
 
 				district, err := api.DefaultClient.CreateDistrict(&request)
 				if err != nil {
@@ -184,7 +185,7 @@ var DistrictCommand = cli.Command{
 				}
 
 				fmt.Printf("You are attempting to delete %s\n", districtName)
-				if !c.Bool("no-confirmation") && !areYouSure("This operation cannot be undone. Are you sure?") {
+				if !c.Bool("no-confirmation") && !utils.AreYouSure("This operation cannot be undone. Are you sure?", utils.NewStdinInputReader()) {
 					return nil
 				}
 

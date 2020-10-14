@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/degica/barcelona-cli/api"
+	"github.com/degica/barcelona-cli/utils"
 	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli"
 )
@@ -197,7 +198,7 @@ var EndpointCommand = cli.Command{
 				}
 
 				fmt.Printf("You are attempting to delete /%s/endpoints/%s\n", c.String("district"), endpointName)
-				if !c.Bool("no-confirmation") && !areYouSure("This operation cannot be undone. Are you sure?") {
+				if !c.Bool("no-confirmation") && !utils.AreYouSure("This operation cannot be undone. Are you sure?", utils.NewStdinInputReader()) {
 					return nil
 				}
 
