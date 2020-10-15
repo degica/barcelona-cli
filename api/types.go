@@ -300,6 +300,14 @@ type APIError struct {
 	Backtrace    []string `json:"backtrace"`
 }
 
+type VaultAuthResponseAuth struct {
+	ClientToken string `json:"client_token"`
+}
+
+type VaultAuthResponse struct {
+	Auth VaultAuthResponseAuth `json:"auth"`
+}
+
 func (err *APIError) Error() string {
 	if config.Debug {
 		return fmt.Sprintf("%s\n\n%s\n%s\n", err.Message, err.DebugMessage, strings.Join(err.Backtrace, "\n"))

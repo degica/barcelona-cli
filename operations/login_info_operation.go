@@ -6,11 +6,20 @@ import (
 	"github.com/degica/barcelona-cli/config"
 )
 
-type LoginInfoOperation struct {
-	cfg config.Configuration
+type LoginInfo interface {
+	GetEndpoint() string
+	GetAuth() string
 }
 
-func NewLoginInfoOperation(cfg config.Configuration) *LoginInfoOperation {
+type LoginConfiguration interface {
+	LoadLogin() *config.Login
+}
+
+type LoginInfoOperation struct {
+	cfg LoginConfiguration
+}
+
+func NewLoginInfoOperation(cfg LoginConfiguration) *LoginInfoOperation {
 	// set only specific field value with field key
 	return &LoginInfoOperation{
 		cfg: cfg,
@@ -20,8 +29,8 @@ func NewLoginInfoOperation(cfg config.Configuration) *LoginInfoOperation {
 func (oper LoginInfoOperation) run() *runResult {
 	login := oper.cfg.LoadLogin()
 
-	fmt.Printf("Endpoint: %s\n", login.Endpoint)
-	fmt.Printf("Auth:     %s\n", login.Auth)
+	fmt.Printf("Endpoint: %s\n", login.GetEndpoint())
+	fmt.Printf("Auth:     %s\n", login.GetAuth())
 
 	return ok_result()
 }

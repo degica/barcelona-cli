@@ -15,11 +15,6 @@ func PrintOneoff(o *api.Oneoff) {
 	fmt.Printf("Task ARN: %s\n", o.TaskARN)
 }
 
-func fileExists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
-}
-
 type HeritageConfig struct {
 	Environments map[string]*api.Heritage `yaml:"environments" json:"environments"`
 	Review       *api.ReviewAppDefinition `yaml:"review" json:"review"`

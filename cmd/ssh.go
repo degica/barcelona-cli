@@ -29,8 +29,8 @@ func (ssh *SSH) Run(command string) error {
 		"-oUserKnownHostsFile=/dev/null",
 		"-oServerAliveInterval=60",
 		"-oServerAliveCountMax=720", // 12 hours
-		fmt.Sprintf("-oProxyCommand=ssh -W %%h:%%p -i %s hopper@%s", config.PrivateKeyPath, ssh.BastionIP),
-		"-i", config.PrivateKeyPath,
+		fmt.Sprintf("-oProxyCommand=ssh -W %%h:%%p -i %s hopper@%s", config.Get().GetPrivateKeyPath(), ssh.BastionIP),
+		"-i", config.Get().GetPrivateKeyPath(),
 		fmt.Sprintf("ec2-user@%s", ssh.IP),
 		command,
 	}
