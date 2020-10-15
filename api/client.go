@@ -79,8 +79,8 @@ func (cli *Client) rawRequest(req *http.Request) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if config.Debug {
-		//Is dumping response too much?
-		//dump(httputil.DumpResponse(resp, true))
+		//Is dumping response too much? Probably not.
+		dump(httputil.DumpResponse(resp, true))
 	}
 
 	b, err := ioutil.ReadAll(resp.Body)
@@ -92,6 +92,7 @@ func (cli *Client) rawRequest(req *http.Request) ([]byte, error) {
 		var apiErr APIError
 		err := json.Unmarshal(b, &apiErr)
 		if err != nil {
+			fmt.Printf("Failed to parse error. Use `bcn -d` to see raw server response\n")
 			return nil, err
 		}
 
