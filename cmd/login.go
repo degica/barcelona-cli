@@ -51,6 +51,7 @@ var LoginCommand = cli.Command{
 		}
 
 		oper := operations.NewLoginOperation(endpoint, backend, gh_token, vault_token, vault_url, ext)
+
 		return operations.Execute(oper)
 	},
 	Subcommands: []cli.Command{
