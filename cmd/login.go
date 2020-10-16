@@ -4,6 +4,7 @@ import (
 	"github.com/degica/barcelona-cli/api"
 	"github.com/degica/barcelona-cli/config"
 	"github.com/degica/barcelona-cli/operations"
+	"github.com/degica/barcelona-cli/utils"
 	"github.com/urfave/cli"
 )
 
@@ -37,7 +38,19 @@ var LoginCommand = cli.Command{
 		vault_token := c.String("vault-token")
 		vault_url := c.String("vault-url")
 
-		oper := operations.NewLoginOperation(endpoint, backend, gh_token, vault_token, vault_url, api.DefaultClient, config.Get())
+		ext := struct {
+			utils.UserInputReader
+			*api.Client
+			*config.LocalConfig
+			*utils.CommandRunner
+		}{
+			utils.NewStdinInputReader(),
+			api.DefaultClient,
+			config.Get(),
+			&utils.CommandRunner{},
+		}
+
+		oper := operations.NewLoginOperation(endpoint, backend, gh_token, vault_token, vault_url, ext)
 		return operations.Execute(oper)
 	},
 	Subcommands: []cli.Command{

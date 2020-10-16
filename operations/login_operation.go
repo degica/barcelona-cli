@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
-	"os/exec"
 	"regexp"
 
 	"encoding/json"
@@ -15,14 +13,20 @@ import (
 	"github.com/degica/barcelona-cli/utils"
 )
 
-type LoginOperationApiClient interface {
+type LoginOperationExternals interface {
+	// User Input Reader
+	Read(secret bool) (string, error)
+
+	// CommandRunner
+	RunCommand(name string, arg ...string) error
+
+	// Client stufff
 	LoginWithGithub(endpoint string, token string) (*api.User, error)
 	LoginWithVault(endpoint string, vault_url string, token string) (*api.User, error)
 	ReloadDefaultClient() (*api.Client, error)
 	Patch(path string, body io.Reader) ([]byte, error)
-}
 
-type LoginConfig interface {
+	// Config stuff
 	WriteLogin(auth string, token string, endpoint string) error
 	GetPublicKeyPath() string
 	GetPrivateKeyPath() string
@@ -34,19 +38,17 @@ type LoginOperation struct {
 	gh_token    string
 	vault_token string
 	vault_url   string
-	client      LoginOperationApiClient
-	cfg         LoginConfig
+	ext         LoginOperationExternals
 }
 
-func NewLoginOperation(endpoint string, backend string, gh_token string, vault_token string, vault_url string, client LoginOperationApiClient, cfg LoginConfig) *LoginOperation {
+func NewLoginOperation(endpoint string, backend string, gh_token string, vault_token string, vault_url string, ext LoginOperationExternals) *LoginOperation {
 	return &LoginOperation{
 		endpoint:    endpoint,
 		backend:     backend,
 		gh_token:    gh_token,
 		vault_token: vault_token,
 		vault_url:   vault_url,
-		client:      client,
-		cfg:         cfg,
+		ext:      ext,
 	}
 }
 
@@ -55,15 +57,15 @@ func githubLogin(oper LoginOperation, user *api.User) *runResult {
 	token := oper.gh_token
 	if len(token) == 0 {
 		fmt.Println("Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new")
-		token = utils.Ask("GitHub Token", true, true, utils.NewStdinInputReader())
+		token = utils.Ask("GitHub Token", true, true, oper.ext)
 	}
 
-	user, err := oper.client.LoginWithGithub(oper.endpoint, token)
+	user, err := oper.ext.LoginWithGithub(oper.endpoint, token)
 	if err != nil {
 		return error_result(err.Error())
 	}
 
-	err = oper.cfg.WriteLogin(oper.backend, user.Token, oper.endpoint)
+	err = oper.ext.WriteLogin(oper.backend, user.Token, oper.endpoint)
 	if err != nil {
 		return error_result(err.Error())
 	}
@@ -77,18 +79,18 @@ func vaultLogin(oper LoginOperation, user *api.User) *runResult {
 	url := oper.vault_url
 	if len(token) == 0 {
 		fmt.Println("Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new")
-		token = utils.Ask("GitHub Token", true, true, utils.NewStdinInputReader())
+		token = utils.Ask("GitHub Token", true, true, oper.ext)
 	}
 	if len(url) == 0 {
 		fmt.Println("URL of vault server (e.g. https://vault.degica.com)")
-		url = utils.Ask("Vault server URL", true, false, utils.NewStdinInputReader())
+		url = utils.Ask("Vault server URL", true, false, oper.ext)
 	}
-	user, err := oper.client.LoginWithVault(oper.endpoint, url, token)
+	user, err := oper.ext.LoginWithVault(oper.endpoint, url, token)
 	if err != nil {
 		return error_result(err.Error())
 	}
 
-	err = oper.cfg.WriteLogin(oper.backend, user.Token, oper.endpoint)
+	err = oper.ext.WriteLogin(oper.backend, user.Token, oper.endpoint)
 	if err != nil {
 		return error_result(err.Error())
 	}
@@ -97,18 +99,14 @@ func vaultLogin(oper LoginOperation, user *api.User) *runResult {
 }
 
 func setUpKeys(oper LoginOperation, user *api.User) *runResult {
-	keyExists := utils.FileExists(oper.cfg.GetPublicKeyPath())
+	keyExists := utils.FileExists(oper.ext.GetPublicKeyPath())
 	if !keyExists {
 		fmt.Println("Generating your SSH key pair...")
-		cmd := exec.Command("ssh-keygen",
+		err := oper.ext.RunCommand("ssh-keygen",
 			"-t", "ecdsa",
 			"-b", "521",
-			"-f", oper.cfg.GetPrivateKeyPath(),
+			"-f", oper.ext.GetPrivateKeyPath(),
 			"-C", "")
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		err := cmd.Run()
 		if err != nil {
 			return error_result(err.Error())
 		}
@@ -117,7 +115,7 @@ func setUpKeys(oper LoginOperation, user *api.User) *runResult {
 	if !keyExists || len(user.PublicKey) == 0 {
 		fmt.Println("Registering your public key...")
 
-		pubKeyB, err := ioutil.ReadFile(oper.cfg.GetPublicKeyPath())
+		pubKeyB, err := ioutil.ReadFile(oper.ext.GetPublicKeyPath())
 		if err != nil {
 			return error_result(err.Error())
 		}
@@ -127,12 +125,12 @@ func setUpKeys(oper LoginOperation, user *api.User) *runResult {
 		reqBody := make(map[string]string)
 		reqBody["public_key"] = pubKey
 		bodyB, err := json.Marshal(reqBody)
-		oper.client, err = oper.client.ReloadDefaultClient()
+		reloaded_client, err := oper.ext.ReloadDefaultClient()
 		if err != nil {
 			return error_result(err.Error())
 		}
 
-		_, err = oper.client.Patch("/user", bytes.NewBuffer(bodyB))
+		_, err = reloaded_client.Patch("/user", bytes.NewBuffer(bodyB))
 		if err != nil {
 			return error_result(err.Error())
 		}
