@@ -20,6 +20,7 @@ type LoginOperationExternals interface {
 	// CommandRunner
 	RunCommand(name string, arg ...string) error
 
+	// Client stufff
 	LoginWithGithub(endpoint string, token string) (*api.User, error)
 	LoginWithVault(endpoint string, vault_url string, token string) (*api.User, error)
 	ReloadDefaultClient() (*api.Client, error)
