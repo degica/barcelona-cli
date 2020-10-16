@@ -28,15 +28,15 @@ func NewApiOperation(method string, path string, body *bytes.Buffer, client ApiO
 	}
 }
 
-func (oper ApiOperation) run() *runResult {
-	if len(oper.method) == 0 {
+func (apiOperation ApiOperation) run() *runResult {
+	if len(apiOperation.method) == 0 {
 		return error_result("method is required")
 	}
-	if len(oper.path) == 0 {
+	if len(apiOperation.path) == 0 {
 		return error_result("path is required")
 	}
 
-	response, err := oper.client.Request(oper.method, oper.path, oper.body)
+	response, err := apiOperation.client.Request(apiOperation.method, apiOperation.path, apiOperation.body)
 	if err != nil {
 		return error_result(err.Error())
 	}
