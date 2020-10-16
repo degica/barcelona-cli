@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -16,19 +15,6 @@ import (
 
 	"github.com/degica/barcelona-cli/api"
 )
-
-func PrettyJSON(b []byte) string {
-	var v interface{}
-	err := json.Unmarshal(b, &v)
-	if err != nil {
-		return ""
-	}
-	pretty, err := json.MarshalIndent(v, "", "  ")
-	if err != nil {
-		return ""
-	}
-	return string(pretty)
-}
 
 func PrintHeritage(h *api.Heritage) {
 	fmt.Printf("Name:          %s\n", h.Name)

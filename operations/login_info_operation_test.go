@@ -13,10 +13,10 @@ func (m mockConfig) LoadLogin() *config.Login {
 	}
 }
 
-func ExampleLoginInfoOperation_Run_output() {
+func ExampleLoginInfoOperation_run_output() {
 
 	op := NewLoginInfoOperation(&mockConfig{})
-	op.Run()
+	op.run()
 
 	// Output:
 	// Endpoint: https://test.example.com
