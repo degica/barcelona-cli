@@ -48,7 +48,7 @@ func NewLoginOperation(endpoint string, backend string, gh_token string, vault_t
 		gh_token:    gh_token,
 		vault_token: vault_token,
 		vault_url:   vault_url,
-		ext:      ext,
+		ext:         ext,
 	}
 }
 
