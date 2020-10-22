@@ -12,6 +12,7 @@ import (
 	"github.com/degica/barcelona-cli/api"
 	"github.com/degica/barcelona-cli/config"
 	"github.com/degica/barcelona-cli/operations"
+	"github.com/degica/barcelona-cli/utils"
 	"github.com/urfave/cli"
 )
 
@@ -50,7 +51,7 @@ var LoginCommand = cli.Command{
 			token := c.String("github-token")
 			if len(token) == 0 {
 				fmt.Println("Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new")
-				token = ask("GitHub Token", true, true)
+				token = utils.Ask("GitHub Token", true, true, utils.NewStdinInputReader())
 			}
 
 			user, err = api.DefaultClient.LoginWithGithub(endpoint, token)
@@ -72,7 +73,7 @@ var LoginCommand = cli.Command{
 			vaultToken := c.String("vault-token")
 			if len(vaultToken) == 0 {
 				fmt.Println("Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new")
-				vaultToken = ask("GitHub Token", true, true)
+				vaultToken = utils.Ask("GitHub Token", true, true, utils.NewStdinInputReader())
 			}
 			user, err = api.DefaultClient.LoginWithVault(endpoint, vaultToken)
 			if err != nil {

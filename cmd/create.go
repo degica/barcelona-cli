@@ -36,7 +36,7 @@ var CreateCommand = cli.Command{
 		if err != nil {
 			return cli.NewExitError(err.Error(), 1)
 		}
-		PrintHeritage(resp)
+		resp.Print()
 
 		return nil
 	},
