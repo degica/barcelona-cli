@@ -28,25 +28,20 @@ func (reader StdinInputReader) Read(secret bool) (string, error) {
 		}
 		response := string(bytePassword)
 		return response, nil
-
-	} else {
-		reader := bufio.NewReader(os.Stdin)
-		response, err := reader.ReadString('\n')
-		if err != nil {
-			return "", err
-		}
-		return response, nil
 	}
+
+	stdin_reader := bufio.NewReader(os.Stdin)
+	response, err := stdin_reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	return response, nil
 }
 
 func AreYouSure(message string, reader UserInputReader) bool {
 	for {
 		res := Ask(fmt.Sprintf("%s [y/n]", message), false, false, reader)
-		if res == "y" {
-			return true
-		} else if res == "n" {
-			return false
-		}
+		return res == "y"
 	}
 }
 

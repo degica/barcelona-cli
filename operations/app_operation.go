@@ -17,39 +17,39 @@ type AppOperationApiClient interface {
 
 type AppOperation struct {
 	name         string
-	optype       OperationType
+	op_type      OperationType
 	no_confirm   bool
 	client       AppOperationApiClient
 	input_reader utils.UserInputReader
 }
 
-func NewAppOperation(name string, optype OperationType, no_confirm bool, client AppOperationApiClient, input_reader utils.UserInputReader) *AppOperation {
+func NewAppOperation(name string, op_type OperationType, no_confirm bool, client AppOperationApiClient, input_reader utils.UserInputReader) *AppOperation {
 	return &AppOperation{
 		name:         name,
-		optype:       optype,
+		op_type:      op_type,
 		no_confirm:   no_confirm,
 		client:       client,
 		input_reader: input_reader,
 	}
 }
 
-func app_delete(oper AppOperation) *runResult {
-	fmt.Printf("You are attempting to delete %s\n", oper.name)
-	if !oper.no_confirm && !utils.AreYouSure("This operation cannot be undone. Are you sure?", oper.input_reader) {
+func app_delete(operation AppOperation) *runResult {
+	fmt.Printf("You are attempting to delete %s\n", operation.name)
+	if !operation.no_confirm && !utils.AreYouSure("This operation cannot be undone. Are you sure?", operation.input_reader) {
 		return nil
 	}
 
-	_, err := oper.client.Delete("/heritages/"+oper.name, nil)
+	_, err := operation.client.Delete("/heritages/"+operation.name, nil)
 	if err != nil {
 		return error_result(err.Error())
 	}
-	fmt.Printf("Deleted %s\n", oper.name)
+	fmt.Printf("Deleted %s\n", operation.name)
 
 	return ok_result()
 }
 
-func app_show(oper AppOperation) *runResult {
-	resp, err := oper.client.Get("/heritages/"+oper.name, nil)
+func app_show(operation AppOperation) *runResult {
+	resp, err := operation.client.Get("/heritages/"+operation.name, nil)
 	if err != nil {
 		return error_result(err.Error())
 	}
@@ -66,17 +66,17 @@ func app_show(oper AppOperation) *runResult {
 	return ok_result()
 }
 
-func (oper AppOperation) run() *runResult {
-	if len(oper.name) == 0 {
+func (operation AppOperation) run() *runResult {
+	if len(operation.name) == 0 {
 		return error_result("district name is required")
 	}
 
-	if oper.optype == Delete {
-		return app_delete(oper)
+	if operation.op_type == Delete {
+		return app_delete(operation)
 	}
 
-	if oper.optype == Show {
-		return app_show(oper)
+	if operation.op_type == Show {
+		return app_show(operation)
 	}
 
 	return error_result("unknown operation")
