@@ -10,17 +10,8 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
-    - name: setup
-      run: |-
-        mkdir -p $GOPATH/src/$(dirname $REPO_NAME)
-        ln -svf $GITHUB_WORKSPACE $GOPATH/src/$REPO_NAME
-        cd $GOPATH/src/$REPO_NAME
-        wget https://github.com/Masterminds/glide/releases/download/v$GLIDE_VERSION/glide-v$GLIDE_VERSION-linux-amd64.tar.gz
-        tar -xf glide-v$GLIDE_VERSION-linux-amd64.tar.gz
-        export PATH="$(pwd)/linux-amd64:$GOPATH/bin:$PATH"
     - name: script
       run: |-
-        cd $GOPATH/src/$REPO_NAME
         make check
 'on':
   push:
