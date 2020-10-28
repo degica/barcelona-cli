@@ -1,5 +1,8 @@
 # Barcelona Client
 
+![build](https://github.com/degica/barcelona-cli/workflows/build/badge.svg)
+![test](https://github.com/degica/barcelona-cli/workflows/test/badge.svg)
+
 The command line client for [Barcelona](https://github.com/degica/barcelona).
 
 ## Installation
