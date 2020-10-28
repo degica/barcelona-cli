@@ -15,16 +15,27 @@ Unzip the file and place the binary to your `PATH`
 
 Requirements:
 
-- [Go installed](https://golang.org/doc/install) and GOPATH setup.  
-- [Install glide](https://github.com/Masterminds/glide#install)  
+- [Install Go](https://golang.org/doc/install)
 
 ### Getting setup
 
-- Example GOPATH: `/home/my_home/go`
-- Clone this project into: `/home/my_home/go/src/github.com/degica`
-- `cd` into `barcelona-cli`
-- Run `glide install`
+Simply check out the repository and download the modules required by barcelona-cli. Run `make test` and ensure the tests pass
+
+```bash
+git clone https://github.com/degica/barcelona-cli bcn
+cd bcn
+go mod download
+make test
+```
 
 ### Creating a build
 
-- Running `make dev` will issue a development executable, `barcelona-cli`, in the root of the project.
+Running `make` will issue a development executable, `barcelona-cli`, in the root of the project.
+
+### Formatting
+
+Run `make format` to format your code!
+
+### Vetting
+
+Run `make vet` to ensure your code meets all the go conventions
