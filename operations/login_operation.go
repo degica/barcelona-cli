@@ -19,6 +19,8 @@ type LoginOperationExternals interface {
 
 	// CommandRunner
 	RunCommand(name string, arg ...string) error
+
+	// FileOps
 	FileExists(path string) bool
 
 	// Client stufff
