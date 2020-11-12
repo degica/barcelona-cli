@@ -43,11 +43,13 @@ var LoginCommand = cli.Command{
 			*api.Client
 			*config.LocalConfig
 			*utils.CommandRunner
+			*utils.FileOps
 		}{
 			utils.NewStdinInputReader(),
 			api.DefaultClient,
 			config.Get(),
 			&utils.CommandRunner{},
+			&utils.FileOps{},
 		}
 
 		oper := operations.NewLoginOperation(endpoint, backend, gh_token, vault_token, vault_url, ext)

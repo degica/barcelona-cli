@@ -19,6 +19,7 @@ type LoginOperationExternals interface {
 
 	// CommandRunner
 	RunCommand(name string, arg ...string) error
+	FileExists(path string) bool
 
 	// Client stufff
 	LoginWithGithub(endpoint string, token string) (*api.User, error)
@@ -99,7 +100,7 @@ func vaultLogin(oper LoginOperation, user *api.User) *runResult {
 }
 
 func setUpKeys(oper LoginOperation, user *api.User) *runResult {
-	keyExists := utils.FileExists(oper.ext.GetPublicKeyPath())
+	keyExists := oper.ext.FileExists(oper.ext.GetPublicKeyPath())
 	if !keyExists {
 		fmt.Println("Generating your SSH key pair...")
 		err := oper.ext.RunCommand("ssh-keygen",

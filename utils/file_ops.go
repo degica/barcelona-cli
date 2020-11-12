@@ -4,7 +4,10 @@ import (
 	"os"
 )
 
-func FileExists(path string) bool {
+type FileOps struct {
+}
+
+func (_ FileOps) FileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
 }
