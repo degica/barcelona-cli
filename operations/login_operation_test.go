@@ -350,6 +350,28 @@ func ExampleLoginOperation_run_with_vault_token_given_url() {
 	// Registering your public key...
 }
 
+type mockLoginVaultError struct { }
+
+func (m mockLoginVaultError) Error() string {
+	return "something"
+}
+
+func ExampleLoginOperation_run_with_vault_token_given_url_but_fails() {
+	ext := &mockLoginOperationExternals{
+		readString:          "aw\n",
+		readError:           nil,
+		loginWithVaultUser:  nil,
+		loginWithVaultError: &mockLoginVaultError{},
+		readFileBytes:       []byte("stuff"),
+	}
+
+	op := NewLoginOperation("https://endpoint", "vault", "", "gh_token", "https://vaultserv", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Vault
+}
+
 func ExampleLoginOperation_run_output() {
 
 	op := NewLoginOperation("https://endpoint", "somethingrando", "gh_token", "vault_token", "https://vault_url", &mockLoginOperationExternals{})
