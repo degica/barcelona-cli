@@ -21,6 +21,9 @@ type mockLoginOperationExternals struct {
 	loginWithGithubUser  *api.User
 	loginWithGithubError error
 
+	loginWithVaultUser  *api.User
+	loginWithVaultError error
+
 	readFileBytes []byte
 	readFileError error
 
@@ -51,7 +54,7 @@ func (m mockLoginOperationExternals) LoginWithGithub(endpoint string, token stri
 }
 
 func (m mockLoginOperationExternals) LoginWithVault(endpoint string, vault_url string, token string) (*api.User, error) {
-	return nil, nil
+	return m.loginWithVaultUser, m.loginWithVaultError
 }
 
 func (m mockLoginOperationExternals) ReloadDefaultClient() (LoginOperationClient, error) {
@@ -111,7 +114,7 @@ func ExampleLoginOperation_run_with_github_already_has_ssh() {
 		loginWithGithubUser:  &api.User{},
 		loginWithGithubError: nil,
 		readFileBytes:        []byte("stuff"),
-		fileExistsBool: true,
+		fileExistsBool:       true,
 	}
 
 	op := NewLoginOperation("https://endpoint", "github", "", "", "", ext)
@@ -130,7 +133,7 @@ func ExampleLoginOperation_run_with_github_token_already_has_ssh() {
 		loginWithGithubUser:  &api.User{},
 		loginWithGithubError: nil,
 		readFileBytes:        []byte("stuff"),
-		fileExistsBool: true,
+		fileExistsBool:       true,
 	}
 
 	op := NewLoginOperation("https://endpoint", "github", "gh_token", "", "", ext)
@@ -178,9 +181,178 @@ func ExampleLoginOperation_run_with_github_token() {
 	// Registering your public key...
 }
 
+func TestVaultBackend(t *testing.T) {
+	ext := &mockLoginOperationExternals{
+		readString:          "aw\n",
+		readError:           nil,
+		loginWithVaultUser:  &api.User{},
+		loginWithVaultError: nil,
+		readFileBytes:       []byte("stuff"),
+	}
+
+	op := NewLoginOperation("https://endpoint", "vault", "", "", "", ext)
+	result := op.run()
+
+	if result.is_error != false {
+		t.Errorf("Expected no error to be returned.")
+	}
+}
+
+func ExampleLoginOperation_run_with_vault_already_has_ssh() {
+	ext := &mockLoginOperationExternals{
+		readString:          "aw\n",
+		readError:           nil,
+		loginWithVaultUser:  &api.User{},
+		loginWithVaultError: nil,
+		readFileBytes:       []byte("stuff"),
+		fileExistsBool:      true,
+	}
+
+	op := NewLoginOperation("https://endpoint", "vault", "", "", "", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Vault
+	// Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new
+	// GitHub Token: URL of vault server (e.g. https://vault.degica.com)
+	// Vault server URL: Registering your public key...
+}
+
+func ExampleLoginOperation_run_with_vault_token_already_has_ssh() {
+	ext := &mockLoginOperationExternals{
+		readString:          "aw\n",
+		readError:           nil,
+		loginWithVaultUser:  &api.User{},
+		loginWithVaultError: nil,
+		readFileBytes:       []byte("stuff"),
+		fileExistsBool:      true,
+	}
+
+	op := NewLoginOperation("https://endpoint", "vault", "", "gh_token", "", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Vault
+	// URL of vault server (e.g. https://vault.degica.com)
+	// Vault server URL: Registering your public key...
+}
+
+func ExampleLoginOperation_run_with_vault() {
+	ext := &mockLoginOperationExternals{
+		readString:          "aw\n",
+		readError:           nil,
+		loginWithVaultUser:  &api.User{},
+		loginWithVaultError: nil,
+		readFileBytes:       []byte("stuff"),
+	}
+
+	op := NewLoginOperation("https://endpoint", "vault", "", "", "", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Vault
+	// Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new
+	// GitHub Token: URL of vault server (e.g. https://vault.degica.com)
+	// Vault server URL: Generating your SSH key pair...
+	// Registering your public key...
+}
+
+func ExampleLoginOperation_run_with_vault_token() {
+	ext := &mockLoginOperationExternals{
+		readString:          "aw\n",
+		readError:           nil,
+		loginWithVaultUser:  &api.User{},
+		loginWithVaultError: nil,
+		readFileBytes:       []byte("stuff"),
+	}
+
+	op := NewLoginOperation("https://endpoint", "vault", "", "gh_token", "", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Vault
+	// URL of vault server (e.g. https://vault.degica.com)
+	// Vault server URL: Generating your SSH key pair...
+	// Registering your public key...
+}
+
+func ExampleLoginOperation_run_with_vault_already_has_ssh_given_url() {
+	ext := &mockLoginOperationExternals{
+		readString:          "aw\n",
+		readError:           nil,
+		loginWithVaultUser:  &api.User{},
+		loginWithVaultError: nil,
+		readFileBytes:       []byte("stuff"),
+		fileExistsBool:      true,
+	}
+
+	op := NewLoginOperation("https://endpoint", "vault", "", "", "https://vaultserv", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Vault
+	// Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new
+	// GitHub Token: Registering your public key...
+}
+
+func ExampleLoginOperation_run_with_vault_token_already_has_ssh_given_url() {
+	ext := &mockLoginOperationExternals{
+		readString:          "aw\n",
+		readError:           nil,
+		loginWithVaultUser:  &api.User{},
+		loginWithVaultError: nil,
+		readFileBytes:       []byte("stuff"),
+		fileExistsBool:      true,
+	}
+
+	op := NewLoginOperation("https://endpoint", "vault", "", "gh_token", "https://vaultserv", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Vault
+	// Registering your public key...
+}
+
+func ExampleLoginOperation_run_with_vault_given_url() {
+	ext := &mockLoginOperationExternals{
+		readString:          "aw\n",
+		readError:           nil,
+		loginWithVaultUser:  &api.User{},
+		loginWithVaultError: nil,
+		readFileBytes:       []byte("stuff"),
+	}
+
+	op := NewLoginOperation("https://endpoint", "vault", "", "", "https://vaultserv", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Vault
+	// Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new
+	// GitHub Token: Generating your SSH key pair...
+	// Registering your public key...
+}
+
+func ExampleLoginOperation_run_with_vault_token_given_url() {
+	ext := &mockLoginOperationExternals{
+		readString:          "aw\n",
+		readError:           nil,
+		loginWithVaultUser:  &api.User{},
+		loginWithVaultError: nil,
+		readFileBytes:       []byte("stuff"),
+	}
+
+	op := NewLoginOperation("https://endpoint", "vault", "", "gh_token", "https://vaultserv", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Vault
+	// Generating your SSH key pair...
+	// Registering your public key...
+}
+
 func ExampleLoginOperation_run_output() {
 
-	op := NewLoginOperation("https://endpoint", "mybckend", "gh_token", "vault_token", "https://vault_url", &mockLoginOperationExternals{})
+	op := NewLoginOperation("https://endpoint", "somethingrando", "gh_token", "vault_token", "https://vault_url", &mockLoginOperationExternals{})
 	op.run()
 
 	// Output:
