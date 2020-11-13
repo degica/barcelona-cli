@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"regexp"
 
 	"encoding/json"
@@ -12,6 +11,34 @@ import (
 	"github.com/degica/barcelona-cli/api"
 	"github.com/degica/barcelona-cli/utils"
 )
+
+// A proxy class to satisfy the interfaces
+type ProxyLoginOperationClient struct {
+	Client *api.Client
+}
+
+func (p ProxyLoginOperationClient) ReloadDefaultClient() (LoginOperationClient, error) {
+	client, error := p.Client.ReloadDefaultClient()
+	return client, error
+}
+
+func (p ProxyLoginOperationClient) LoginWithGithub(endpoint string, token string) (*api.User, error) {
+	return p.Client.LoginWithGithub(endpoint, token)
+}
+
+func (p ProxyLoginOperationClient) LoginWithVault(endpoint string, vault_url string, token string) (*api.User, error) {
+	return p.Client.LoginWithVault(endpoint, vault_url, token)
+}
+
+func (p ProxyLoginOperationClient) Patch(path string, body io.Reader) ([]byte, error) {
+	return p.Client.Patch(path, body)
+}
+
+type LoginOperationClient interface {
+	LoginWithGithub(endpoint string, token string) (*api.User, error)
+	LoginWithVault(endpoint string, vault_url string, token string) (*api.User, error)
+	Patch(path string, body io.Reader) ([]byte, error)
+}
 
 type LoginOperationExternals interface {
 	// User Input Reader
@@ -22,12 +49,11 @@ type LoginOperationExternals interface {
 
 	// FileOps
 	FileExists(path string) bool
+	ReadFile(path string) ([]byte, error)
 
 	// Client stufff
-	LoginWithGithub(endpoint string, token string) (*api.User, error)
-	LoginWithVault(endpoint string, vault_url string, token string) (*api.User, error)
-	ReloadDefaultClient() (*api.Client, error)
-	Patch(path string, body io.Reader) ([]byte, error)
+	LoginOperationClient
+	ReloadDefaultClient() (LoginOperationClient, error)
 
 	// Config stuff
 	WriteLogin(auth string, token string, endpoint string) error
@@ -118,7 +144,7 @@ func setUpKeys(oper LoginOperation, user *api.User) *runResult {
 	if !keyExists || len(user.PublicKey) == 0 {
 		fmt.Println("Registering your public key...")
 
-		pubKeyB, err := ioutil.ReadFile(oper.ext.GetPublicKeyPath())
+		pubKeyB, err := oper.ext.ReadFile(oper.ext.GetPublicKeyPath())
 		if err != nil {
 			return error_result(err.Error())
 		}

@@ -1,9 +1,9 @@
 package operations
 
 import (
+	"github.com/degica/barcelona-cli/api"
 	"io"
 	"testing"
-	"github.com/degica/barcelona-cli/api"
 )
 
 type mockLoginOperationError struct {
@@ -16,10 +16,18 @@ func (m mockLoginOperationError) Error() string {
 
 type mockLoginOperationExternals struct {
 	readString string
-	readError error
+	readError  error
 
-	loginWithGithubUser *api.User
+	loginWithGithubUser  *api.User
 	loginWithGithubError error
+
+	readFileBytes []byte
+	readFileError error
+
+	patchBytes []byte
+	patchError error
+
+	fileExistsBool bool
 }
 
 func (m mockLoginOperationExternals) Read(secret bool) (string, error) {
@@ -31,7 +39,11 @@ func (m mockLoginOperationExternals) RunCommand(name string, arg ...string) erro
 }
 
 func (m mockLoginOperationExternals) FileExists(path string) bool {
-	return false
+	return m.fileExistsBool
+}
+
+func (m mockLoginOperationExternals) ReadFile(path string) ([]byte, error) {
+	return m.readFileBytes, m.readFileError
 }
 
 func (m mockLoginOperationExternals) LoginWithGithub(endpoint string, token string) (*api.User, error) {
@@ -42,12 +54,12 @@ func (m mockLoginOperationExternals) LoginWithVault(endpoint string, vault_url s
 	return nil, nil
 }
 
-func (m mockLoginOperationExternals) ReloadDefaultClient() (*api.Client, error) {
-	return nil, nil
+func (m mockLoginOperationExternals) ReloadDefaultClient() (LoginOperationClient, error) {
+	return m, nil
 }
 
 func (m mockLoginOperationExternals) Patch(path string, body io.Reader) ([]byte, error) {
-	return nil, nil
+	return m.patchBytes, m.patchError
 }
 
 func (m mockLoginOperationExternals) WriteLogin(auth string, token string, endpoint string) error {
@@ -71,35 +83,106 @@ func TestUnknownBackend(t *testing.T) {
 	}
 
 	if result.message != "Unrecognized auth backend" {
-		t.Errorf("Expected 'Unrecognized auth backend' to be returned.")
+		t.Errorf("Expected 'Unrecognized auth backend' to be returned. But got '%s'", result.message)
 	}
 }
 
 func TestGithubBackend(t *testing.T) {
 	ext := &mockLoginOperationExternals{
-		readString: "aw\n",
-		readError: nil,
-		loginWithGithubUser: &api.User{},
+		readString:           "aw\n",
+		readError:            nil,
+		loginWithGithubUser:  &api.User{},
 		loginWithGithubError: nil,
+		readFileBytes:        []byte("stuff"),
 	}
 
 	op := NewLoginOperation("https://endpoint", "github", "", "", "", ext)
 	result := op.run()
 
-	if result.is_error != true {
+	if result.is_error != false {
 		t.Errorf("Expected no error to be returned.")
-	}
-
-	if result.message != "Unrecognized auth backend" {
-		t.Errorf("Expected 'Unrecognized auth backend' to be returned." + result.message)
 	}
 }
 
-func ExampleLoginOperationApiClient_run_output() {
+func ExampleLoginOperation_run_with_github_already_has_ssh() {
+	ext := &mockLoginOperationExternals{
+		readString:           "aw\n",
+		readError:            nil,
+		loginWithGithubUser:  &api.User{},
+		loginWithGithubError: nil,
+		readFileBytes:        []byte("stuff"),
+		fileExistsBool: true,
+	}
+
+	op := NewLoginOperation("https://endpoint", "github", "", "", "", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Github
+	// Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new
+	// GitHub Token: Registering your public key...
+}
+
+func ExampleLoginOperation_run_with_github_token_already_has_ssh() {
+	ext := &mockLoginOperationExternals{
+		readString:           "aw\n",
+		readError:            nil,
+		loginWithGithubUser:  &api.User{},
+		loginWithGithubError: nil,
+		readFileBytes:        []byte("stuff"),
+		fileExistsBool: true,
+	}
+
+	op := NewLoginOperation("https://endpoint", "github", "gh_token", "", "", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Github
+	// Registering your public key...
+}
+
+func ExampleLoginOperation_run_with_github() {
+	ext := &mockLoginOperationExternals{
+		readString:           "aw\n",
+		readError:            nil,
+		loginWithGithubUser:  &api.User{},
+		loginWithGithubError: nil,
+		readFileBytes:        []byte("stuff"),
+	}
+
+	op := NewLoginOperation("https://endpoint", "github", "", "", "", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Github
+	// Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new
+	// GitHub Token: Generating your SSH key pair...
+	// Registering your public key...
+}
+
+func ExampleLoginOperation_run_with_github_token() {
+	ext := &mockLoginOperationExternals{
+		readString:           "aw\n",
+		readError:            nil,
+		loginWithGithubUser:  &api.User{},
+		loginWithGithubError: nil,
+		readFileBytes:        []byte("stuff"),
+	}
+
+	op := NewLoginOperation("https://endpoint", "github", "gh_token", "", "", ext)
+	op.run()
+
+	// Output:
+	// Logging in with Github
+	// Generating your SSH key pair...
+	// Registering your public key...
+}
+
+func ExampleLoginOperation_run_output() {
 
 	op := NewLoginOperation("https://endpoint", "mybckend", "gh_token", "vault_token", "https://vault_url", &mockLoginOperationExternals{})
 	op.run()
 
 	// Output:
-	// 
+	//
 }

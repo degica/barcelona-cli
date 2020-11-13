@@ -40,13 +40,13 @@ var LoginCommand = cli.Command{
 
 		ext := struct {
 			utils.UserInputReader
-			*api.Client
+			*operations.ProxyLoginOperationClient
 			*config.LocalConfig
 			*utils.CommandRunner
 			*utils.FileOps
 		}{
 			utils.NewStdinInputReader(),
-			api.DefaultClient,
+			&operations.ProxyLoginOperationClient{Client: api.DefaultClient},
 			config.Get(),
 			&utils.CommandRunner{},
 			&utils.FileOps{},
