@@ -26,8 +26,8 @@ func (p ProxyLoginOperationClient) LoginWithGithub(endpoint string, token string
 	return p.Client.LoginWithGithub(endpoint, token)
 }
 
-func (p ProxyLoginOperationClient) LoginWithVault(endpoint string, vault_url string, token string) (*api.User, error) {
-	return p.Client.LoginWithVault(endpoint, vault_url, token)
+func (p ProxyLoginOperationClient) LoginWithVault(vault_url string, token string) (*api.User, error) {
+	return p.Client.LoginWithVault(vault_url, token)
 }
 
 func (p ProxyLoginOperationClient) Patch(path string, body io.Reader) ([]byte, error) {
@@ -36,7 +36,7 @@ func (p ProxyLoginOperationClient) Patch(path string, body io.Reader) ([]byte, e
 
 type LoginOperationClient interface {
 	LoginWithGithub(endpoint string, token string) (*api.User, error)
-	LoginWithVault(endpoint string, vault_url string, token string) (*api.User, error)
+	LoginWithVault(vault_url string, token string) (*api.User, error)
 	Patch(path string, body io.Reader) ([]byte, error)
 }
 
@@ -51,7 +51,7 @@ type LoginOperationExternals interface {
 	FileExists(path string) bool
 	ReadFile(path string) ([]byte, error)
 
-	// Client stufff
+	// Client stuff
 	LoginOperationClient
 	ReloadDefaultClient() (LoginOperationClient, error)
 
@@ -62,28 +62,28 @@ type LoginOperationExternals interface {
 }
 
 type LoginOperation struct {
-	endpoint    string
-	backend     string
-	gh_token    string
-	vault_token string
-	vault_url   string
-	ext         LoginOperationExternals
+	endpoint   string
+	backend    string
+	ghToken    string
+	vaultToken string
+	vaultUrl   string
+	ext        LoginOperationExternals
 }
 
-func NewLoginOperation(endpoint string, backend string, gh_token string, vault_token string, vault_url string, ext LoginOperationExternals) *LoginOperation {
+func NewLoginOperation(endpoint string, backend string, ghToken string, vaultToken string, vaultUrl string, ext LoginOperationExternals) *LoginOperation {
 	return &LoginOperation{
-		endpoint:    endpoint,
-		backend:     backend,
-		gh_token:    gh_token,
-		vault_token: vault_token,
-		vault_url:   vault_url,
-		ext:         ext,
+		endpoint:   endpoint,
+		backend:    backend,
+		ghToken:    ghToken,
+		vaultToken: vaultToken,
+		vaultUrl:   vaultUrl,
+		ext:        ext,
 	}
 }
 
 func githubLogin(oper LoginOperation, user *api.User) *runResult {
 	fmt.Println("Logging in with Github")
-	token := oper.gh_token
+	token := oper.ghToken
 	if len(token) == 0 {
 		fmt.Println("Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new")
 		token = utils.Ask("GitHub Token", true, true, oper.ext)
@@ -104,8 +104,8 @@ func githubLogin(oper LoginOperation, user *api.User) *runResult {
 
 func vaultLogin(oper LoginOperation, user *api.User) *runResult {
 	fmt.Println("Logging in with Vault")
-	token := oper.vault_token
-	url := oper.vault_url
+	token := oper.vaultToken
+	url := oper.vaultUrl
 	if len(token) == 0 {
 		fmt.Println("Create new GitHub access token with read:org permission here https://github.com/settings/tokens/new")
 		token = utils.Ask("GitHub Token", true, true, oper.ext)
@@ -114,11 +114,10 @@ func vaultLogin(oper LoginOperation, user *api.User) *runResult {
 		fmt.Println("URL of vault server (e.g. https://vault.degica.com)")
 		url = utils.Ask("Vault server URL", true, false, oper.ext)
 	}
-	user, err := oper.ext.LoginWithVault(oper.endpoint, url, token)
+	user, err := oper.ext.LoginWithVault(url, token)
 	if err != nil {
 		return error_result(err.Error())
 	}
-
 	err = oper.ext.WriteLogin(oper.backend, user.Token, oper.endpoint)
 	if err != nil {
 		return error_result(err.Error())

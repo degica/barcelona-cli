@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -28,29 +27,22 @@ func (cli *Client) LoginWithGithub(endpoint string, githubToken string) (*User, 
 	return userResp.User, nil
 }
 
-func (cli *Client) LoginWithVault(endpoint string, vault_url string, githubToken string) (*User, error) {
-
+func (cli *Client) LoginWithVault(vault_url string, githubToken string) (*User, error) {
 	req, err := http.NewRequest("POST",
 		vault_url+"/v1/auth/github/login",
 		strings.NewReader("{\"token\":\""+githubToken+"\"}"))
 	if err != nil {
 		return nil, err
 	}
-	b, err := cli.rawRequest(req)
+	rawResponse, err := cli.rawRequest(req)
 	if err != nil {
 		return nil, err
 	}
 
 	var resp VaultAuthResponse
-	json.Unmarshal(b, &resp)
+	json.Unmarshal(rawResponse, &resp)
 
-	fmt.Println(b)
-
-	user := &User{
-		Token:     resp.Auth.ClientToken,
-		Name:      "",
-		PublicKey: "",
-	}
+	user := &User{Token: resp.Auth.ClientToken}
 
 	return user, nil
 }

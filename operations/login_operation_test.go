@@ -53,7 +53,7 @@ func (m mockLoginOperationExternals) LoginWithGithub(endpoint string, token stri
 	return m.loginWithGithubUser, m.loginWithGithubError
 }
 
-func (m mockLoginOperationExternals) LoginWithVault(endpoint string, vault_url string, token string) (*api.User, error) {
+func (m mockLoginOperationExternals) LoginWithVault(vault_url string, token string) (*api.User, error) {
 	return m.loginWithVaultUser, m.loginWithVaultError
 }
 
@@ -350,7 +350,7 @@ func ExampleLoginOperation_run_with_vault_token_given_url() {
 	// Registering your public key...
 }
 
-type mockLoginVaultError struct { }
+type mockLoginVaultError struct{}
 
 func (m mockLoginVaultError) Error() string {
 	return "something"

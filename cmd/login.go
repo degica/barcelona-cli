@@ -52,16 +52,16 @@ var LoginCommand = cli.Command{
 			&utils.FileOps{},
 		}
 
-		oper := operations.NewLoginOperation(endpoint, backend, gh_token, vault_token, vault_url, ext)
-		return operations.Execute(oper)
+		operation := operations.NewLoginOperation(endpoint, backend, gh_token, vault_token, vault_url, ext)
+		return operations.Execute(operation)
 	},
 	Subcommands: []cli.Command{
 		{
 			Name:  "info",
 			Usage: "Show login information",
 			Action: func(c *cli.Context) error {
-				oper := operations.NewLoginInfoOperation(config.Get())
-				return operations.Execute(oper)
+				operation := operations.NewLoginInfoOperation(config.Get())
+				return operations.Execute(operation)
 			},
 		},
 	},

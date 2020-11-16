@@ -9,8 +9,8 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 )
 
-var ConfigDir string
-var LoginFilePath string
+var configDir string
+var loginFilePath string
 var privateKeyPath string
 var publicKeyPath string
 var CertPath string
@@ -51,11 +51,11 @@ func init() {
 	if err != nil {
 		panic("Couldn't get login path")
 	}
-	ConfigDir = path
-	LoginFilePath = filepath.Join(ConfigDir, "login")
-	privateKeyPath = filepath.Join(ConfigDir, "id_ecdsa")
-	publicKeyPath = filepath.Join(ConfigDir, "id_ecdsa.pub")
-	CertPath = filepath.Join(ConfigDir, "id_ecdsa-cert.pub")
+	configDir = path
+	loginFilePath = filepath.Join(configDir, "login")
+	privateKeyPath = filepath.Join(configDir, "id_ecdsa")
+	publicKeyPath = filepath.Join(configDir, "id_ecdsa.pub")
+	CertPath = filepath.Join(configDir, "id_ecdsa-cert.pub")
 }
 
 func getConfigPath() (string, error) {
@@ -87,7 +87,7 @@ func (login Login) GetEndpoint() string {
 
 func LoadLogin() *Login {
 	var login Login
-	loginJSON, err := ioutil.ReadFile(LoginFilePath)
+	loginJSON, err := ioutil.ReadFile(loginFilePath)
 	if err != nil {
 		login = Login{}
 	} else {
@@ -112,12 +112,12 @@ func writeLogin(login *Login) error {
 		return err
 	}
 
-	err = os.MkdirAll(ConfigDir, 0775)
+	err = os.MkdirAll(configDir, 0775)
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile(LoginFilePath, b, 0600)
+	err = ioutil.WriteFile(loginFilePath, b, 0600)
 	if err != nil {
 		return err
 	}
