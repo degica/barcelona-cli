@@ -44,20 +44,14 @@ func NewClient(c *Config, l *config.Login) *Client {
 	return &Client{login: l, config: c}
 }
 
-func newDefaultClient() (*Client, error) {
+func newDefaultClient() *Client {
 	c := DefaultConfig()
-	l := config.LoadLogin()
-	cli := NewClient(c, l)
-
-	return cli, nil
+	l := config.Get().LoadLogin()
+	return NewClient(c, l)
 }
 
 func reloadDefaultClient() error {
-	cli, err := newDefaultClient()
-	if err != nil {
-		return err
-	}
-	DefaultClient = cli
+	DefaultClient = newDefaultClient()
 	return nil
 }
 
@@ -65,7 +59,7 @@ func (cli *Client) rawRequest(req *http.Request) ([]byte, error) {
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 
-	if config.Debug {
+	if config.Get().IsDebug() {
 		q := req.URL.Query()
 		q.Add("debug", "true")
 		req.URL.RawQuery = q.Encode()
@@ -78,7 +72,7 @@ func (cli *Client) rawRequest(req *http.Request) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	if config.Debug {
+	if config.Get().IsDebug() {
 		//Is dumping response too much? Probably not.
 		dump(httputil.DumpResponse(resp, true))
 	}

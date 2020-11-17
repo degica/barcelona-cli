@@ -310,7 +310,7 @@ type VaultAuthResponse struct {
 }
 
 func (err *APIError) Error() string {
-	if config.Debug {
+	if config.Get().IsDebug() {
 		return fmt.Sprintf("%s\n\n%s\n%s\n", err.Message, err.DebugMessage, strings.Join(err.Backtrace, "\n"))
 	} else {
 		return err.Message
