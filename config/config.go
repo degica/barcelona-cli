@@ -75,33 +75,6 @@ func (m LocalConfig) WriteLogin(auth string, token string, endpoint string) erro
 	return nil
 }
 
-func getConfigPath() (string, error) {
-	homedir, err := homedir.Dir()
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(homedir, ".bcn"), nil
-}
-
-type Login struct {
-	Auth     string `json:"auth"`
-	Token    string `json:"token"`
-	Endpoint string `json:"endpoint"`
-}
-
-func (login Login) GetAuth() string {
-	return login.Auth
-}
-
-func (login Login) GetToken() string {
-	return login.Token
-}
-
-func (login Login) GetEndpoint() string {
-	return login.Endpoint
-}
-
 func (m LocalConfig) LoadLogin() *Login {
 	var login Login
 	loginJSON, err := ioutil.ReadFile(m.loginFilePath)
@@ -121,4 +94,13 @@ func (m LocalConfig) LoadLogin() *Login {
 	}
 
 	return &login
+}
+
+func getConfigPath() (string, error) {
+	homedir, err := homedir.Dir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(homedir, ".bcn"), nil
 }
