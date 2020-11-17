@@ -27,7 +27,7 @@ var pathPrefix = "/v1"
 var DefaultClient *Client
 
 func init() {
-	err := ReloadDefaultClient()
+	err := reloadDefaultClient()
 	if err != nil {
 		panic("Couldn't initialize default client: " + err.Error())
 	}
@@ -52,7 +52,7 @@ func newDefaultClient() (*Client, error) {
 	return cli, nil
 }
 
-func ReloadDefaultClient() error {
+func reloadDefaultClient() error {
 	cli, err := newDefaultClient()
 	if err != nil {
 		return err
@@ -101,20 +101,26 @@ func (cli *Client) rawRequest(req *http.Request) ([]byte, error) {
 	return b, nil
 }
 
+func (cli *Client) ReloadDefaultClient() (*Client, error) {
+	err := reloadDefaultClient()
+	return DefaultClient, err
+}
+
 func (cli *Client) Request(method string, path string, body io.Reader) ([]byte, error) {
-	url := cli.login.Endpoint + pathPrefix + path
+	url := cli.login.GetEndpoint() + pathPrefix + path
+
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
 
-	switch cli.login.Auth {
+	switch cli.login.GetAuth() {
 	case "github":
-		if len(cli.login.Token) > 0 {
-			req.Header.Add("X-Barcelona-Token", cli.login.Token)
+		if len(cli.login.GetToken()) > 0 {
+			req.Header.Add("X-Barcelona-Token", cli.login.GetToken())
 		}
 	case "vault":
-		req.Header.Add("X-Vault-Token", cli.login.Token)
+		req.Header.Add("X-Vault-Token", cli.login.GetToken())
 	}
 
 	return cli.rawRequest(req)

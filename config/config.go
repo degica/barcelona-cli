@@ -9,28 +9,41 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 )
 
-var ConfigDir string
-var LoginFilePath string
-var PrivateKeyPath string
-var PublicKeyPath string
+var configDir string
+var loginFilePath string
+var privateKeyPath string
+var publicKeyPath string
 var CertPath string
 var Debug bool
 
-// This is the interface clients should use to extract config info
-type Configuration interface {
-	LoadLogin() *Login
-}
-
 // Clients should get configs using this function
-func Get() Configuration {
-	return &localConfig{}
+func Get() *LocalConfig {
+	return &LocalConfig{}
 }
 
 // Implementation of our Configuration object
-type localConfig struct{}
+type LocalConfig struct{}
 
-func (m localConfig) LoadLogin() *Login {
+func (m LocalConfig) LoadLogin() *Login {
 	return LoadLogin()
+}
+
+func (m LocalConfig) GetPrivateKeyPath() string {
+	return privateKeyPath
+}
+
+func (m LocalConfig) GetPublicKeyPath() string {
+	return publicKeyPath
+}
+
+func (m LocalConfig) WriteLogin(auth string, token string, endpoint string) error {
+	login := &Login{
+		Auth:     auth,
+		Token:    token,
+		Endpoint: endpoint,
+	}
+
+	return writeLogin(login)
 }
 
 func init() {
@@ -38,11 +51,11 @@ func init() {
 	if err != nil {
 		panic("Couldn't get login path")
 	}
-	ConfigDir = path
-	LoginFilePath = filepath.Join(ConfigDir, "login")
-	PrivateKeyPath = filepath.Join(ConfigDir, "id_ecdsa")
-	PublicKeyPath = filepath.Join(ConfigDir, "id_ecdsa.pub")
-	CertPath = filepath.Join(ConfigDir, "id_ecdsa-cert.pub")
+	configDir = path
+	loginFilePath = filepath.Join(configDir, "login")
+	privateKeyPath = filepath.Join(configDir, "id_ecdsa")
+	publicKeyPath = filepath.Join(configDir, "id_ecdsa.pub")
+	CertPath = filepath.Join(configDir, "id_ecdsa-cert.pub")
 }
 
 func getConfigPath() (string, error) {
@@ -55,15 +68,26 @@ func getConfigPath() (string, error) {
 }
 
 type Login struct {
-	Auth       string `json:"auth"`
-	Token      string `json:"token"`
-	VaultToken string `json:"vault_token"`
-	Endpoint   string `json:"endpoint"`
+	Auth     string `json:"auth"`
+	Token    string `json:"token"`
+	Endpoint string `json:"endpoint"`
+}
+
+func (login Login) GetAuth() string {
+	return login.Auth
+}
+
+func (login Login) GetToken() string {
+	return login.Token
+}
+
+func (login Login) GetEndpoint() string {
+	return login.Endpoint
 }
 
 func LoadLogin() *Login {
 	var login Login
-	loginJSON, err := ioutil.ReadFile(LoginFilePath)
+	loginJSON, err := ioutil.ReadFile(loginFilePath)
 	if err != nil {
 		login = Login{}
 	} else {
@@ -82,18 +106,18 @@ func LoadLogin() *Login {
 	return &login
 }
 
-func WriteLogin(login *Login) error {
+func writeLogin(login *Login) error {
 	b, err := json.Marshal(login)
 	if err != nil {
 		return err
 	}
 
-	err = os.MkdirAll(ConfigDir, 0775)
+	err = os.MkdirAll(configDir, 0775)
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile(LoginFilePath, b, 0600)
+	err = ioutil.WriteFile(loginFilePath, b, 0600)
 	if err != nil {
 		return err
 	}
