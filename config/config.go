@@ -18,21 +18,21 @@ func Get() *LocalConfig {
 		panic("Couldn't get login path")
 	}
 	return &LocalConfig{
-		configDir: path,
-		loginFilePath: filepath.Join(path, "login"),
+		configDir:      path,
+		loginFilePath:  filepath.Join(path, "login"),
 		privateKeyPath: filepath.Join(path, "id_ecdsa"),
-		publicKeyPath: filepath.Join(path, "id_ecdsa.pub"),
-		certPath: filepath.Join(path, "id_ecdsa-cert.pub"),
+		publicKeyPath:  filepath.Join(path, "id_ecdsa.pub"),
+		certPath:       filepath.Join(path, "id_ecdsa-cert.pub"),
 	}
 }
 
 // Implementation of our Configuration object
-type LocalConfig struct{
-	configDir string
-	loginFilePath string
+type LocalConfig struct {
+	configDir      string
+	loginFilePath  string
 	privateKeyPath string
-	publicKeyPath string
-	certPath string
+	publicKeyPath  string
+	certPath       string
 }
 
 func (m LocalConfig) GetPrivateKeyPath() string {
