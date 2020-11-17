@@ -3,19 +3,19 @@ package config
 import ()
 
 type Login struct {
-	auth     string `json:"auth"`
-	token    string `json:"token"`
-	endpoint string `json:"endpoint"`
+	Auth     string `json:"auth"`
+	Token    string `json:"token"`
+	Endpoint string `json:"endpoint"`
 }
 
 func (login Login) GetAuth() string {
-	return login.auth
+	return login.Auth
 }
 
 func (login Login) GetToken() string {
-	return login.token
+	return login.Token
 }
 
 func (login Login) GetEndpoint() string {
-	return login.endpoint
+	return login.Endpoint
 }
