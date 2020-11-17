@@ -53,9 +53,9 @@ func (m LocalConfig) IsDebug() bool {
 
 func (m LocalConfig) WriteLogin(auth string, token string, endpoint string) error {
 	login := &Login{
-		Auth:     auth,
-		Token:    token,
-		Endpoint: endpoint,
+		auth:     auth,
+		token:    token,
+		endpoint: endpoint,
 	}
 
 	b, err := json.Marshal(login)
@@ -90,7 +90,7 @@ func (m LocalConfig) LoadLogin() *Login {
 	// Overwrite endpoint with env var if exists
 	ep := os.Getenv("BARCELONA_ENDPOINT")
 	if len(ep) > 0 {
-		login.Endpoint = ep
+		login.endpoint = ep
 	}
 
 	return &login
