@@ -99,12 +99,13 @@ type ReviewGroupResponse struct {
 }
 
 type ReviewAppService struct {
-	Name        string `yaml:"name" json:"name"`
-	ForceSsl    bool   `yaml:"force_ssl" json:"force_ssl"`
-	Cpu         int    `yaml:"cpu" json:"cpu,omitempty"`
-	Memory      int    `yaml:"memory" json:"memory"`
-	Command     string `yaml:"command" json:"command"`
-	ServiceType string `yaml:"service_type" json:"service_type"`
+	Name        string      `yaml:"name" json:"name"`
+	ServiceType string      `yaml:"service_type" json:"service_type"`
+	Cpu         int         `yaml:"cpu" json:"cpu,omitempty"`
+	Memory      int         `yaml:"memory" json:"memory"`
+	Command     string      `yaml:"command" json:"command"`
+	ForceSsl    bool        `yaml:"force_ssl" json:"force_ssl"`
+	Listeners   []*Listener `yaml:"listeners" json:"listeners"`
 }
 
 type ReviewAppDefinition struct {
@@ -176,7 +177,7 @@ type Service struct {
 	ForceSsl         bool           `yaml:"force_ssl" json:"force_ssl"`
 	PortMappings     []*PortMapping `yaml:"port_mappings,omitempty" json:"port_mappings,omitempty"`
 	Hosts            []*Host        `yaml:"hosts" json:"hosts"`
-	Listeners        []*Listener    `yaml:"listeners" json:"listeners"`
+	Listeners        []*Listener    `yaml:"listeners,omitempty" json:"listeners,omitempty"`
 	// Response only parameters
 	Status       string `json:"string,omitempty"`
 	RunningCount int    `json:"running_count,omitempty"`
