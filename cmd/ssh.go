@@ -17,7 +17,7 @@ type SSH struct {
 }
 
 func (ssh *SSH) Run(command string) error {
-	err := ioutil.WriteFile(config.CertPath, []byte(ssh.Certificate), 0644)
+	err := ioutil.WriteFile(config.Get().GetCertPath(), []byte(ssh.Certificate), 0644)
 	if err != nil {
 		return err
 	}

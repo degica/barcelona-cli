@@ -1,24 +1,23 @@
 package operations
 
-import (
-	"github.com/degica/barcelona-cli/config"
-)
+import ()
 
-type mockConfig struct{}
+type mockLogin struct{}
 
-func (m mockConfig) LoadLogin() *config.Login {
-	return &config.Login{
-		Auth:     "vault",
-		Endpoint: "https://test.example.com",
-	}
+func (m mockLogin) GetAuth() string {
+	return "fooauth"
+}
+
+func (m mockLogin) GetEndpoint() string {
+	return "https://example.com"
 }
 
 func ExampleLoginInfoOperation_run_output() {
 
-	op := NewLoginInfoOperation(&mockConfig{})
+	op := NewLoginInfoOperation(&mockLogin{})
 	op.run()
 
 	// Output:
-	// Endpoint: https://test.example.com
-	// Auth:     vault
+	// Endpoint: https://example.com
+	// Auth:     fooauth
 }

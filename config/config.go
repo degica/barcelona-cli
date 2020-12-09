@@ -9,31 +9,46 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 )
 
-var configDir string
-var loginFilePath string
-var privateKeyPath string
-var publicKeyPath string
-var CertPath string
 var Debug bool
 
 // Clients should get configs using this function
 func Get() *LocalConfig {
-	return &LocalConfig{}
+	path, err := getConfigPath()
+	if err != nil {
+		panic("Couldn't get login path")
+	}
+	return &LocalConfig{
+		configDir:      path,
+		loginFilePath:  filepath.Join(path, "login"),
+		privateKeyPath: filepath.Join(path, "id_ecdsa"),
+		publicKeyPath:  filepath.Join(path, "id_ecdsa.pub"),
+		certPath:       filepath.Join(path, "id_ecdsa-cert.pub"),
+	}
 }
 
 // Implementation of our Configuration object
-type LocalConfig struct{}
-
-func (m LocalConfig) LoadLogin() *Login {
-	return LoadLogin()
+type LocalConfig struct {
+	configDir      string
+	loginFilePath  string
+	privateKeyPath string
+	publicKeyPath  string
+	certPath       string
 }
 
 func (m LocalConfig) GetPrivateKeyPath() string {
-	return privateKeyPath
+	return m.privateKeyPath
 }
 
 func (m LocalConfig) GetPublicKeyPath() string {
-	return publicKeyPath
+	return m.publicKeyPath
+}
+
+func (m LocalConfig) GetCertPath() string {
+	return m.certPath
+}
+
+func (m LocalConfig) IsDebug() bool {
+	return Debug
 }
 
 func (m LocalConfig) WriteLogin(auth string, token string, endpoint string) error {
@@ -43,51 +58,26 @@ func (m LocalConfig) WriteLogin(auth string, token string, endpoint string) erro
 		Endpoint: endpoint,
 	}
 
-	return writeLogin(login)
-}
-
-func init() {
-	path, err := getConfigPath()
+	b, err := json.Marshal(login)
 	if err != nil {
-		panic("Couldn't get login path")
-	}
-	configDir = path
-	loginFilePath = filepath.Join(configDir, "login")
-	privateKeyPath = filepath.Join(configDir, "id_ecdsa")
-	publicKeyPath = filepath.Join(configDir, "id_ecdsa.pub")
-	CertPath = filepath.Join(configDir, "id_ecdsa-cert.pub")
-}
-
-func getConfigPath() (string, error) {
-	homedir, err := homedir.Dir()
-	if err != nil {
-		return "", err
+		return err
 	}
 
-	return filepath.Join(homedir, ".bcn"), nil
+	err = os.MkdirAll(m.configDir, 0775)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(m.loginFilePath, b, 0600)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-type Login struct {
-	Auth     string `json:"auth"`
-	Token    string `json:"token"`
-	Endpoint string `json:"endpoint"`
-}
-
-func (login Login) GetAuth() string {
-	return login.Auth
-}
-
-func (login Login) GetToken() string {
-	return login.Token
-}
-
-func (login Login) GetEndpoint() string {
-	return login.Endpoint
-}
-
-func LoadLogin() *Login {
+func (m LocalConfig) LoadLogin() *Login {
 	var login Login
-	loginJSON, err := ioutil.ReadFile(loginFilePath)
+	loginJSON, err := ioutil.ReadFile(m.loginFilePath)
 	if err != nil {
 		login = Login{}
 	} else {
@@ -106,20 +96,11 @@ func LoadLogin() *Login {
 	return &login
 }
 
-func writeLogin(login *Login) error {
-	b, err := json.Marshal(login)
+func getConfigPath() (string, error) {
+	homedir, err := homedir.Dir()
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	err = os.MkdirAll(configDir, 0775)
-	if err != nil {
-		return err
-	}
-
-	err = ioutil.WriteFile(loginFilePath, b, 0600)
-	if err != nil {
-		return err
-	}
-	return nil
+	return filepath.Join(homedir, ".bcn"), nil
 }

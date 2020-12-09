@@ -60,7 +60,7 @@ var LoginCommand = cli.Command{
 			Name:  "info",
 			Usage: "Show login information",
 			Action: func(c *cli.Context) error {
-				operation := operations.NewLoginInfoOperation(config.Get())
+				operation := operations.NewLoginInfoOperation(config.Get().LoadLogin())
 				return operations.Execute(operation)
 			},
 		},
