@@ -1,0 +1,60 @@
+'on':
+  push:
+    branches:
+    - production
+name: release
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Get Version
+        id: getver
+        run: |
+          output=`cat VERSION`
+          echo "::set-output name=VERSION::$output"
+      - name: Build project
+        run: make release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ steps.getver.outputs.VERSION }}
+          release_name: Release v${{ steps.getver.outputs.VERSION }}
+          body: TBA
+          draft: true
+          prerelease: false
+      - name: Upload Mac Executable
+        id: release_mac_exe 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          asset_path: ./out/${{ steps.getver.outputs.VERSION }}/bcn_darwin_amd64.zip
+          asset_name: bcn_darwin_amd64.zip
+          asset_content_type: application/zip
+      - name: Upload Linux Executable
+        id: release_linux_exe 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/${{ steps.getver.outputs.VERSION }}/bcn_linux_amd64.zip
+          asset_name: bcn_linux_amd64.zip
+          asset_content_type: application/zip
+      - name: Upload Windows Executable
+        id: release_win_exe
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/${{ steps.getver.outputs.VERSION }}/bcn_windows_amd64.zip
+          asset_name: bcn_windows_amd64.zip
+          asset_content_type: application/zip
