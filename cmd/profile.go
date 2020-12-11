@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"strings"
+	"github.com/degica/barcelona-cli/config"
 	"github.com/degica/barcelona-cli/operations"
+	"github.com/degica/barcelona-cli/utils"
 	"github.com/urfave/cli"
 )
 
@@ -18,7 +20,17 @@ func profileSubcommands(opnames []string) []cli.Command {
 			Action: func(c *cli.Context) error {
 				name := c.Args().Get(0)
 
-				oper := operations.NewProfileOperation(c.Command.Name, name)
+				ext := struct {
+					utils.UserInputReader
+					*config.LocalConfig
+					*utils.FileOps
+				}{
+					utils.NewStdinInputReader(),
+					config.Get(),
+					&utils.FileOps{},
+				}
+
+				oper := operations.NewProfileOperation(c.Command.Name, name, ext)
 				return operations.Execute(oper)
 			},
   	}
