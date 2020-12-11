@@ -23,10 +23,12 @@ func profileSubcommands(opnames []string) []cli.Command {
 				ext := struct {
 					utils.UserInputReader
 					*config.LocalConfig
+					*config.Login
 					*utils.FileOps
 				}{
 					utils.NewStdinInputReader(),
 					config.Get(),
+					config.Get().LoadLogin(),
 					&utils.FileOps{},
 				}
 

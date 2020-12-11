@@ -6,12 +6,28 @@ import (
 	"path/filepath"
 )
 
+type profileError struct {
+	error string
+}
+
+func (err profileError) Error() string {
+	return err.error
+}
+
 type ProfileFileOps interface {
 	FileExists(path string) bool
 	ReadFile(path string) ([]byte, error)
 	WriteFile(path string, contents []byte) error
+
 	GetConfigDir() string
-	GetLoginEndpoint() string
+	GetPrivateKeyPath() string
+	GetPublicKeyPath() string
+	GetCertPath() string
+	WriteLogin(auth string, token string, endpoint string) error
+
+	GetAuth() string
+	GetToken() string
+	GetEndpoint() string
 }
 
 type ProfileOperation struct {
@@ -50,6 +66,13 @@ func (oper ProfileOperation) createProfile() *runResult {
 		return error_result("Please enter a name")
 	}
 
+	name, _ := oper.currentProfileName()
+	profile := oper.getProfile(name)
+	oper.saveProfile(name, &profile)
+
+	newProfile := oper.getProfile(oper.name)
+	oper.setProfile(newProfile)
+
 	return ok_result()
 }
 
@@ -64,43 +87,28 @@ func (oper ProfileOperation) useProfile() *runResult {
 	if oper.name == "" {
 		return error_result("Please enter a name")
 	}
+
+	profile, err := oper.loadProfile(oper.name)
+	if err != nil {
+		return error_result(err.Error())
+	}
+	oper.setProfile(*profile)
+
 	return ok_result()
 }
 
 func (oper ProfileOperation) showProfile() *runResult {
-	var profile_name = "default"
-	var url = oper.file_ops.GetLoginEndpoint()
+	var profile_name, _ = oper.currentProfileName()
+	var url = oper.file_ops.GetEndpoint()
 
-	if oper.name == "" {
-		if oper.file_ops.FileExists(oper.current_profile_file) {
-			contents, err := oper.file_ops.ReadFile(oper.current_profile_file)
-			if err != nil {
-				return error_result(err.Error())
-			}
-
-			profile_name = string(contents)
+	if oper.name != "" {
+		pfile, err := oper.loadProfile(oper.name)
+		if err != nil {
+			return error_result(err.Error())
 		}
-	} else {
-		profile_file := filepath.Join(oper.file_ops.GetConfigDir(), "profile_"+oper.name)
-		if oper.file_ops.FileExists(profile_file) {
 
-			var profile ProfileFile
-			profileJson, err := oper.file_ops.ReadFile(profile_file)
-			if err != nil {
-				return error_result(err.Error())
-			}
-		
-			err = json.Unmarshal(profileJson, &profile)
-			if err != nil {
-				return error_result(err.Error())
-			}
-
-			profile_name = profile.name
-			url = profile.login.Endpoint
-
-		} else {
-			return error_result("Profile does not exist")
-		}
+		profile_name = pfile.name
+		url = pfile.login.Endpoint
 	}
 
 	fmt.Println("Profile:", profile_name)
@@ -109,12 +117,55 @@ func (oper ProfileOperation) showProfile() *runResult {
 	return ok_result()
 }
 
-type profileError struct {
-	error string
+func (oper ProfileOperation) initializeProfiles() {
+	profile := oper.getProfile("default")
+	oper.setProfile(profile)
 }
 
-func (err profileError) Error() string {
-	return err.error
+func (oper ProfileOperation) getProfile(name string) ProfileFile {
+	var pfile ProfileFile
+
+	pfile.name = name
+	pfile.login.Auth = oper.file_ops.GetAuth()
+	pfile.login.Token = oper.file_ops.GetToken()
+	pfile.login.Endpoint = oper.file_ops.GetEndpoint()
+
+	privateKeyBytes, _ := oper.file_ops.ReadFile(oper.file_ops.GetPrivateKeyPath())
+	publicKeyBytes, _ := oper.file_ops.ReadFile(oper.file_ops.GetPublicKeyPath())
+	certBytes, _ := oper.file_ops.ReadFile(oper.file_ops.GetCertPath())
+
+	pfile.privateKey = string(privateKeyBytes)
+	pfile.publicKey = string(publicKeyBytes)
+	pfile.cert = string(certBytes)
+
+	return pfile
+}
+
+func (oper ProfileOperation) setProfile(profile ProfileFile) {
+	oper.file_ops.WriteFile(oper.current_profile_file, []byte(profile.name))
+
+	oper.file_ops.WriteLogin(profile.login.Auth, profile.login.Token, profile.login.Endpoint)
+
+	oper.file_ops.WriteFile(oper.file_ops.GetPrivateKeyPath(), []byte(profile.privateKey))
+	oper.file_ops.WriteFile(oper.file_ops.GetPublicKeyPath(), []byte(profile.publicKey))
+	oper.file_ops.WriteFile(oper.file_ops.GetCertPath(), []byte(profile.cert))
+}
+
+func (oper ProfileOperation) currentProfileName() (string, error) {
+	if !oper.file_ops.FileExists(oper.current_profile_file) {
+		oper.initializeProfiles()
+	}
+
+	var profile_name = "default"
+	if oper.file_ops.FileExists(oper.current_profile_file) {
+		contents, err := oper.file_ops.ReadFile(oper.current_profile_file)
+		if err != nil {
+			return "", err
+		}
+
+		profile_name = string(contents)
+	}
+	return profile_name, nil
 }
 
 func (oper ProfileOperation) profilePath(name string) string {
@@ -126,7 +177,7 @@ func (oper ProfileOperation) profileExists(name string) bool {
 }
 
 func (oper ProfileOperation) loadProfile(name string) (*ProfileFile, error) {
-	if (!oper.profileExists(name)) {
+	if !oper.profileExists(name) {
 		return nil, &profileError{error: "profile " + name + " does not exist"}
 	}
 
