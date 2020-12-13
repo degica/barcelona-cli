@@ -1,7 +1,7 @@
 'on':
   push:
     branches:
-    - production
+    - a-test
 name: release
 jobs:
   release:
