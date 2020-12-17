@@ -4,10 +4,10 @@ import (
 	"github.com/degica/barcelona-cli/config"
 )
 
-type ProfileFile struct {
-	name       string       `json:"name"`
-	login      config.Login `json:"login"`
-	privateKey string       `json:"privateKey"`
-	publicKey  string       `json:"publicKey"`
-	cert       string       `json:"cert"`
+type profileFile struct {
+	Name       string       `json:"name"`
+	Login      config.Login `json:"login"`
+	PrivateKey string       `json:"privateKey"`
+	PublicKey  string       `json:"publicKey"`
+	Cert       string       `json:"cert"`
 }
