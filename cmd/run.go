@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/degica/barcelona-cli/api"
+	"github.com/degica/barcelona-cli/config"
+	"github.com/degica/barcelona-cli/utils"
 
 	"github.com/urfave/cli"
 )
@@ -152,11 +154,14 @@ var RunCommand = cli.Command{
 			}
 		}
 
-		ssh := SSH{
-			IP:          matchedCI.PrivateIPAddress,
-			BastionIP:   oneoff.District.BastionIP,
-			Certificate: certificate,
-		}
+		ssh := utils.NewSshCommand(
+			matchedCI.PrivateIPAddress,
+			oneoff.District.BastionIP,
+			certificate,
+			config.Get(),
+			&utils.CommandRunner{},
+		)
+
 		if ssh.Run(oneoff.InteractiveRunCommand) != nil {
 			return cli.NewExitError(err.Error(), 1)
 		}

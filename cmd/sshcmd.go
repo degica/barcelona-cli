@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 
 	"github.com/degica/barcelona-cli/api"
+	"github.com/degica/barcelona-cli/config"
+	"github.com/degica/barcelona-cli/utils"
 	"github.com/urfave/cli"
 )
 
@@ -32,11 +34,13 @@ var SSHCommand = cli.Command{
 			return cli.NewExitError(err.Error(), 1)
 		}
 
-		ssh := SSH{
-			IP:          ip,
-			BastionIP:   districtResp.District.BastionIP,
-			Certificate: districtResp.Certificate,
-		}
+		ssh := utils.NewSshCommand(
+			ip,
+			districtResp.District.BastionIP,
+			districtResp.Certificate,
+			config.Get(),
+			&utils.CommandRunner{},
+		)
 		if ssh.Run("") != nil {
 			return cli.NewExitError(err.Error(), 1)
 		}
