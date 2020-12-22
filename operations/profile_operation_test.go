@@ -92,15 +92,212 @@ func (_ MockProfileManipulation) GetEndpoint() string {
 // ========================================================
 // 
 
-// ========================================================
-// TestDeleteProfile
-// ========================================================
-// 
+type MockProfileManipulationForCreateProfile struct {
+	MockProfileManipulation
+	profiles map[string]*profileFile
+	curprofile string
+}
+
+func (m MockProfileManipulationForCreateProfile) currentProfileName() (string, error) {
+	return m.curprofile, nil
+}
+
+func (_ MockProfileManipulationForCreateProfile) getProfile() (*profileFile, error) {
+	return &profileFile{}, nil
+}
+
+func (m *MockProfileManipulationForCreateProfile) saveProfile(name string, pfile *profileFile) error {
+	m.profiles[name] = pfile
+	return nil
+}
+
+func (m *MockProfileManipulationForCreateProfile) setProfile(pfile profileFile) error {
+	m.curprofile = pfile.Name
+	return nil
+}
+
+func TestCreateProfile(t *testing.T) {
+	oper := &MockProfileManipulationForCreateProfile{
+		profiles: map[string]*profileFile{},
+		curprofile: "adefault",
+	}
+
+	result := createProfile(oper, "newprofile")
+
+	if result.is_error == true {
+		t.Errorf("Expected no error")
+	}
+
+	if oper.curprofile != "newprofile" {
+		t.Errorf("Expected current profile to be 'newprofile' but was not")
+	}
+
+	if oper.profiles["adefault"] == nil {
+		t.Errorf("Expected adefault to be saved but was not")
+	}
+}
 
 // ========================================================
 // TestUseProfile
 // ========================================================
-// 
+// use a profile
+
+type MockProfileManipulationForUseProfile struct {
+	MockProfileManipulation
+	curprofile string
+	savedProfile string
+	loadedProfile string
+	currentProfile *profileFile
+	loadProfileError error
+}
+
+func (m MockProfileManipulationForUseProfile) currentProfileName() (string, error) {
+	return m.curprofile, nil
+}
+
+func (_ MockProfileManipulationForUseProfile) getProfile() (*profileFile, error) {
+	return &profileFile{}, nil
+}
+
+func (m *MockProfileManipulationForUseProfile) saveProfile(name string, pfile *profileFile) error {
+	m.savedProfile = name
+	return nil
+}
+
+func (m *MockProfileManipulationForUseProfile) setProfile(pfile profileFile) error {
+	m.currentProfile = &pfile
+	return nil
+}
+
+func (m *MockProfileManipulationForUseProfile) loadProfile(name string) (*profileFile, error) {
+	m.loadedProfile = name
+	pfile := &profileFile{
+		Name: name,
+	}
+	return pfile, m.loadProfileError
+}
+
+func TestUseProfile(t *testing.T) {
+	oper := &MockProfileManipulationForUseProfile{
+		curprofile: "p1",
+	}
+
+	result := useProfile(oper, "p2")
+
+	if result.is_error == true {
+		t.Errorf("Expected no error")
+	}
+
+	if oper.savedProfile != "p1" {
+		t.Errorf("Expected p1 profile to be saved but was not.")
+	}
+
+	if oper.loadedProfile != "p2" {
+		t.Errorf("Expected loaded profile to be p2 but got " + oper.loadedProfile)
+	}
+
+	if oper.currentProfile.Name != "p2" {
+		t.Errorf("Expected loaded profile to be p2 but got " + oper.currentProfile.Name)
+	}
+}
+
+func TestUseNonexistentProfile(t *testing.T) {
+	oper := &MockProfileManipulationForUseProfile{
+		curprofile: "p1",
+		loadProfileError: profileError{},
+	}
+
+	result := useProfile(oper, "p2")
+
+	if result.is_error != true {
+		t.Errorf("Expected an error")
+	}
+}
+
+// ========================================================
+// ExampleShowProfile
+// ========================================================
+// show the current profile
+
+type MockProfileManipulationForShowProfile struct {
+	MockProfileManipulation
+
+	loadProfileResult *profileFile
+	loadProfileError error
+}
+
+func (_ MockProfileManipulationForShowProfile) GetEndpoint() string {
+	return "https://default.endpoint"
+}
+
+func (_ MockProfileManipulationForShowProfile) currentProfileName() (string, error) {
+	return "thedefaultprofile", nil
+}
+
+func (m MockProfileManipulationForShowProfile) loadProfile(string) (*profileFile, error) {
+	return m.loadProfileResult, m.loadProfileError
+}
+
+func Example_showProfile_with_no_param() {
+
+	oper := MockProfileManipulationForShowProfile{}
+
+	showProfile(oper, "")
+
+	// Output:
+	// Profile: thedefaultprofile
+	// URL: https://default.endpoint
+}
+
+func Example_showProfile_with_specified_profile() {
+	
+	oper := MockProfileManipulationForShowProfile{
+		loadProfileResult: &profileFile{
+			Name: "aspecificprofile",
+			Login: config.Login{
+				Endpoint: "https://specific.endpoint",
+			},
+		},
+	}
+
+	showProfile(oper, "blabla")
+
+	// Output:
+	// Profile: aspecificprofile
+	// URL: https://specific.endpoint
+}
+
+func Example_showProfile_with_specified_nonexistent_profile() {
+
+	oper := MockProfileManipulationForShowProfile{
+		loadProfileError: &profileError{
+			error: "some error",
+		},
+	}
+
+	showProfile(oper, "blabla")
+
+	// Output:
+}
+
+func TestShowProfileWithNonexistentProfile(t *testing.T) {
+
+	oper := MockProfileManipulationForShowProfile{
+		loadProfileError: &profileError{
+			error: "some error",
+		},
+	}
+
+	result := showProfile(oper, "blabla")
+
+	if result.is_error != true {
+		t.Errorf("Expected an error returned.")
+	}
+
+	if result.message != "some error" {
+		t.Errorf("Expected 'some error' to returned, but got: " + result.message)
+	}
+}
 
 // ========================================================
 // TestInitializeProfile

@@ -46,7 +46,6 @@ var ProfileCommand = cli.Command{
 	Usage: "Manage profiles",
 	Subcommands: profileSubcommands([]string{
 		"create",
-		"delete",
 		"use",
 		"show",
 	}),

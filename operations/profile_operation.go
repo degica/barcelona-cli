@@ -68,8 +68,6 @@ func (oper ProfileOperation) run() *runResult {
 	switch oper.opname {
 	case "create":
 		return createProfile(ops, oper.name)
-	case "delete":
-		return deleteProfile(ops, oper.name)
 	case "use":
 		return useProfile(ops, oper.name)
 	case "show":
@@ -90,7 +88,8 @@ func createProfile(oper profileManipulationInterface, name string) *runResult {
 	if err != nil { return error_result(err.Error()) }
 
 	profile.Name = curr_name
-	oper.saveProfile(curr_name, profile)
+	saveError := oper.saveProfile(curr_name, profile)
+	if saveError != nil { return error_result(saveError.Error()) }
 
 	newProfile, err := oper.getProfile()
 	if err != nil { return error_result(err.Error()) }
@@ -101,23 +100,26 @@ func createProfile(oper profileManipulationInterface, name string) *runResult {
 	return ok_result()
 }
 
-func deleteProfile(oper profileManipulationInterface, name string) *runResult {
-	if name == "" {
-		return error_result("Please enter a name")
-	}
-	return ok_result()
-}
-
 func useProfile(oper profileManipulationInterface, name string) *runResult {
 	if name == "" {
 		return error_result("Please enter a name")
 	}
 
-	profile, err := oper.loadProfile(name)
+	curr_name, err := oper.currentProfileName()
+	if err != nil { return error_result(err.Error()) }
+
+	profile, err := oper.getProfile()
+	if err != nil { return error_result(err.Error()) }
+
+	profile.Name = curr_name
+	saveError := oper.saveProfile(curr_name, profile)
+	if saveError != nil { return error_result(saveError.Error()) }
+
+	loadedProfile, err := oper.loadProfile(name)
 	if err != nil {
 		return error_result(err.Error())
 	}
-	oper.setProfile(*profile)
+	oper.setProfile(*loadedProfile)
 
 	return ok_result()
 }
@@ -250,7 +252,7 @@ func (oper ProfileOperation) loadProfile(name string) (*profileFile, error) {
 	return &pfile, nil
 }
 
-func (oper ProfileOperation) saveProfile(name string, profile *profileFile) (error) {
+func (oper ProfileOperation) saveProfile(name string, profile *profileFile) error {
 	b, err := json.Marshal(profile)
 	if err != nil {
 		return err
