@@ -1,22 +1,22 @@
 package cmd
 
 import (
-	"strings"
 	"github.com/degica/barcelona-cli/config"
 	"github.com/degica/barcelona-cli/operations"
 	"github.com/degica/barcelona-cli/utils"
 	"github.com/urfave/cli"
+	"strings"
 )
 
 func profileSubcommands(opnames []string) []cli.Command {
 	var array []cli.Command
 
-  for _, opname := range opnames {
-  	subcommand := cli.Command{
+	for _, opname := range opnames {
+		subcommand := cli.Command{
 			Name:      opname,
 			Usage:     strings.Title(opname) + " a profile",
 			ArgsUsage: "PROFILE_NAME",
-			Flags: []cli.Flag{},
+			Flags:     []cli.Flag{},
 			Action: func(c *cli.Context) error {
 				name := c.Args().Get(0)
 
@@ -35,9 +35,9 @@ func profileSubcommands(opnames []string) []cli.Command {
 				oper := operations.NewProfileOperation(c.Command.Name, name, ext)
 				return operations.Execute(oper)
 			},
-  	}
-    array = append(array, subcommand)
-  }
+		}
+		array = append(array, subcommand)
+	}
 	return array
 }
 

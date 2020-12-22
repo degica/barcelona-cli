@@ -61,7 +61,7 @@ func (oper ProfileOperation) run() *runResult {
 	ops := struct {
 		ProfileOperation
 		ProfileFileOps
-	}{ oper, oper.file_ops }
+	}{oper, oper.file_ops}
 
 	initializeProfiles(ops)
 
@@ -82,17 +82,25 @@ func createProfile(oper profileManipulationInterface, name string) *runResult {
 	}
 
 	curr_name, err := oper.currentProfileName()
-	if err != nil { return error_result(err.Error()) }
+	if err != nil {
+		return error_result(err.Error())
+	}
 
 	profile, err := oper.getProfile()
-	if err != nil { return error_result(err.Error()) }
+	if err != nil {
+		return error_result(err.Error())
+	}
 
 	profile.Name = curr_name
 	saveError := oper.saveProfile(curr_name, profile)
-	if saveError != nil { return error_result(saveError.Error()) }
+	if saveError != nil {
+		return error_result(saveError.Error())
+	}
 
 	newProfile, err := oper.getProfile()
-	if err != nil { return error_result(err.Error()) }
+	if err != nil {
+		return error_result(err.Error())
+	}
 
 	newProfile.Name = name
 	oper.setProfile(*newProfile)
@@ -106,14 +114,20 @@ func useProfile(oper profileManipulationInterface, name string) *runResult {
 	}
 
 	curr_name, err := oper.currentProfileName()
-	if err != nil { return error_result(err.Error()) }
+	if err != nil {
+		return error_result(err.Error())
+	}
 
 	profile, err := oper.getProfile()
-	if err != nil { return error_result(err.Error()) }
+	if err != nil {
+		return error_result(err.Error())
+	}
 
 	profile.Name = curr_name
 	saveError := oper.saveProfile(curr_name, profile)
-	if saveError != nil { return error_result(saveError.Error()) }
+	if saveError != nil {
+		return error_result(saveError.Error())
+	}
 
 	loadedProfile, err := oper.loadProfile(name)
 	if err != nil {
@@ -156,7 +170,9 @@ func initializeProfiles(oper profileManipulationInterface) error {
 
 	profile.Name = "default"
 	err1 := oper.setProfile(*profile)
-	if err1 != nil { return err1 }
+	if err1 != nil {
+		return err1
+	}
 
 	return nil
 }
@@ -169,7 +185,9 @@ func (oper ProfileOperation) getProfile() (*profileFile, error) {
 	var pfile profileFile
 
 	name, err := oper.currentProfileName()
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 
 	pfile.Name = name
 	pfile.Login.Auth = oper.file_ops.GetAuth()
@@ -177,13 +195,19 @@ func (oper ProfileOperation) getProfile() (*profileFile, error) {
 	pfile.Login.Endpoint = oper.file_ops.GetEndpoint()
 
 	privateKeyBytes, err := oper.file_ops.ReadFile(oper.file_ops.GetPrivateKeyPath())
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 
 	publicKeyBytes, err := oper.file_ops.ReadFile(oper.file_ops.GetPublicKeyPath())
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 
 	certBytes, err := oper.file_ops.ReadFile(oper.file_ops.GetCertPath())
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 
 	pfile.PrivateKey = string(privateKeyBytes)
 	pfile.PublicKey = string(publicKeyBytes)
@@ -194,19 +218,29 @@ func (oper ProfileOperation) getProfile() (*profileFile, error) {
 
 func (oper ProfileOperation) setProfile(profile profileFile) error {
 	err := oper.file_ops.WriteFile(oper.current_profile_file, []byte(profile.Name))
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	err1 := oper.file_ops.WriteLogin(profile.Login.Auth, profile.Login.Token, profile.Login.Endpoint)
-	if err1 != nil { return err1 }
+	if err1 != nil {
+		return err1
+	}
 
 	err2 := oper.file_ops.WriteFile(oper.file_ops.GetPrivateKeyPath(), []byte(profile.PrivateKey))
-	if err2 != nil { return err2 }
+	if err2 != nil {
+		return err2
+	}
 
 	err3 := oper.file_ops.WriteFile(oper.file_ops.GetPublicKeyPath(), []byte(profile.PublicKey))
-	if err3 != nil { return err3 }
+	if err3 != nil {
+		return err3
+	}
 
 	err4 := oper.file_ops.WriteFile(oper.file_ops.GetCertPath(), []byte(profile.Cert))
-	if err4 != nil { return err4 }
+	if err4 != nil {
+		return err4
+	}
 
 	return nil
 }
@@ -225,7 +259,7 @@ func (oper ProfileOperation) currentProfileName() (string, error) {
 }
 
 func (oper ProfileOperation) profilePath(name string) string {
-	return filepath.Join(oper.file_ops.GetConfigDir(), "profile_" + name)
+	return filepath.Join(oper.file_ops.GetConfigDir(), "profile_"+name)
 }
 
 func (oper ProfileOperation) profileExists(name string) bool {

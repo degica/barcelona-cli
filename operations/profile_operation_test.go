@@ -1,8 +1,8 @@
 package operations
 
 import (
-	"testing"
 	"github.com/degica/barcelona-cli/config"
+	"testing"
 )
 
 type MockProfileFileOps struct {
@@ -90,11 +90,11 @@ func (_ MockProfileManipulation) GetEndpoint() string {
 // ========================================================
 // TestCreateProfile
 // ========================================================
-// 
+//
 
 type MockProfileManipulationForCreateProfile struct {
 	MockProfileManipulation
-	profiles map[string]*profileFile
+	profiles   map[string]*profileFile
 	curprofile string
 }
 
@@ -118,7 +118,7 @@ func (m *MockProfileManipulationForCreateProfile) setProfile(pfile profileFile) 
 
 func TestCreateProfile(t *testing.T) {
 	oper := &MockProfileManipulationForCreateProfile{
-		profiles: map[string]*profileFile{},
+		profiles:   map[string]*profileFile{},
 		curprofile: "adefault",
 	}
 
@@ -144,10 +144,10 @@ func TestCreateProfile(t *testing.T) {
 
 type MockProfileManipulationForUseProfile struct {
 	MockProfileManipulation
-	curprofile string
-	savedProfile string
-	loadedProfile string
-	currentProfile *profileFile
+	curprofile       string
+	savedProfile     string
+	loadedProfile    string
+	currentProfile   *profileFile
 	loadProfileError error
 }
 
@@ -203,7 +203,7 @@ func TestUseProfile(t *testing.T) {
 
 func TestUseNonexistentProfile(t *testing.T) {
 	oper := &MockProfileManipulationForUseProfile{
-		curprofile: "p1",
+		curprofile:       "p1",
 		loadProfileError: profileError{},
 	}
 
@@ -223,7 +223,7 @@ type MockProfileManipulationForShowProfile struct {
 	MockProfileManipulation
 
 	loadProfileResult *profileFile
-	loadProfileError error
+	loadProfileError  error
 }
 
 func (_ MockProfileManipulationForShowProfile) GetEndpoint() string {
@@ -250,7 +250,7 @@ func Example_showProfile_with_no_param() {
 }
 
 func Example_showProfile_with_specified_profile() {
-	
+
 	oper := MockProfileManipulationForShowProfile{
 		loadProfileResult: &profileFile{
 			Name: "aspecificprofile",
@@ -308,13 +308,13 @@ type MockProfileOperationForTestInitializeProfile struct {
 	MockProfileManipulation
 
 	getProfileOutput profileFile
-	getProfileError error
+	getProfileError  error
 
 	profileThatWasSet *profileFile
-	setProfileError error
+	setProfileError   error
 
 	currentProfileNameString string
-	currentProfileNameError error
+	currentProfileNameError  error
 
 	fileExistsBool bool
 }
@@ -358,7 +358,7 @@ func TestInitializeProfileWhenNoFilesExist(t *testing.T) {
 func TestInitializeProfileWhenNoProfilesExist(t *testing.T) {
 	oper := &MockProfileOperationForTestInitializeProfile{
 		getProfileError: nil,
-		fileExistsBool: false,
+		fileExistsBool:  false,
 	}
 
 	err := initializeProfiles(oper)
@@ -390,7 +390,6 @@ func TestInitializeProfileWhenProfilesExist(t *testing.T) {
 		t.Errorf("Expected no profile to be set")
 	}
 }
-
 
 // ========================================================
 // TestGetProfile
@@ -450,7 +449,7 @@ func TestGetProfile(t *testing.T) {
 
 	oper := &ProfileOperation{
 		current_profile_file: "/profilename",
-		file_ops: ops,
+		file_ops:             ops,
 	}
 
 	pfile, err := oper.getProfile()
@@ -495,9 +494,9 @@ func TestGetProfile(t *testing.T) {
 
 type MockProfileFileOpsForTestSetProfile struct {
 	MockProfileFileOps
-	filesContents map[string]string
-	writtenAuth string
-	writtenToken string
+	filesContents   map[string]string
+	writtenAuth     string
+	writtenToken    string
 	writtenEndpoint string
 }
 
@@ -532,19 +531,19 @@ func TestSetProfile(t *testing.T) {
 
 	oper := &ProfileOperation{
 		current_profile_file: "/profilenamefile",
-		file_ops: ops,
+		file_ops:             ops,
 	}
 
 	pfile := profileFile{
 		Name: "testo",
 		Login: config.Login{
-			Auth: "theauth",
-			Token: "thetoken",
+			Auth:     "theauth",
+			Token:    "thetoken",
 			Endpoint: "https://theendpoint",
 		},
 		PrivateKey: "theprivatekey",
-		PublicKey : "thepublickey",
-		Cert      : "thecert",
+		PublicKey:  "thepublickey",
+		Cert:       "thecert",
 	}
 
 	err := oper.setProfile(pfile)
@@ -669,7 +668,7 @@ func TestProfilePath(t *testing.T) {
 
 type MockProfileFileOpsForTestProfileExists struct {
 	MockProfileFileOps
-	checkedFile string
+	checkedFile       string
 	assertedExistence bool
 }
 
@@ -811,7 +810,7 @@ func TestLoadProfile(t *testing.T) {
 
 type MockProfileFileOpsForTestSaveProfile struct {
 	MockProfileFileOps
-	writtenFile string
+	writtenFile  string
 	writtenBytes []byte
 }
 
@@ -828,8 +827,7 @@ func TestSaveProfile(t *testing.T) {
 		file_ops: saver,
 	}
 
-	profile := &profileFile{
-	}
+	profile := &profileFile{}
 
 	err := oper.saveProfile("hello", profile)
 
@@ -864,13 +862,13 @@ func TestSaveProfileContents(t *testing.T) {
 	profile := &profileFile{
 		Name: "hello2",
 		Login: config.Login{
-			Auth: "theauth",
-			Token: "thetoken",
+			Auth:     "theauth",
+			Token:    "thetoken",
 			Endpoint: "https://theendpoint",
 		},
 		PrivateKey: "theprivatekey",
-		PublicKey : "thepublickey",
-		Cert      : "thecert",
+		PublicKey:  "thepublickey",
+		Cert:       "thecert",
 	}
 
 	oper.saveProfile("hello2", profile)
