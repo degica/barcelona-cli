@@ -501,6 +501,52 @@ func TestGetProfile(t *testing.T) {
 	}
 }
 
+type MockProfileFileOpsForTestGetProfileWithoutCert struct {
+	MockProfileFileOpsForTestGetProfile
+}
+
+func (op MockProfileFileOpsForTestGetProfileWithoutCert) ReadFile(path string) ([]byte, error) {
+	if path == "/private.key" {
+		return []byte("aprivatekey"), nil
+	}
+
+	if path == "/public.key" {
+		return []byte("apublickey"), nil
+	}
+
+	if path == "/cert.cert" {
+		return nil, profileError{}
+	}
+
+	if path == "/profilename" {
+		return []byte("thename"), nil
+	}
+
+	return []byte(""), nil
+}
+
+// Currently we do not generate a certificate file by default, but
+// we want this mechanism to be there when we need it. This test
+// covers the current case with no certs
+func TestGetProfileWithoutCert(t *testing.T) {
+	ops := &MockProfileFileOpsForTestGetProfileWithoutCert{}
+
+	oper := &ProfileOperation{
+		current_profile_file: "/profilename",
+		file_ops:             ops,
+	}
+
+	pfile, err := oper.getProfile()
+
+	if err != nil {
+		t.Errorf("Did not expect error")
+	}
+
+	if pfile.Cert != "" {
+		t.Errorf("Expected cert to be empty but got: " + pfile.Cert)
+	}
+}
+
 // ========================================================
 // TestSetProfile
 // ========================================================

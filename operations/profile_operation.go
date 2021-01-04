@@ -206,7 +206,7 @@ func (oper ProfileOperation) getProfile() (*profileFile, error) {
 
 	certBytes, err3 := oper.file_ops.ReadFile(oper.file_ops.GetCertPath())
 	if err3 != nil {
-		return nil, err3
+		certBytes = []byte{}
 	}
 
 	pfile.PrivateKey = string(privateKeyBytes)
