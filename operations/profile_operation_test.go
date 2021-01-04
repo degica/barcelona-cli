@@ -95,15 +95,17 @@ func (_ MockProfileManipulation) GetEndpoint() string {
 type MockProfileManipulationForCreateProfile struct {
 	MockProfileManipulation
 	profiles   map[string]*profileFile
-	curprofile string
+	profileName string
+	currentProfile *profileFile
+	getProfileError error
 }
 
 func (m MockProfileManipulationForCreateProfile) currentProfileName() (string, error) {
-	return m.curprofile, nil
+	return m.profileName, nil
 }
 
-func (_ MockProfileManipulationForCreateProfile) getProfile() (*profileFile, error) {
-	return &profileFile{}, nil
+func (m MockProfileManipulationForCreateProfile) getProfile() (*profileFile, error) {
+	return m.currentProfile, m.getProfileError
 }
 
 func (m *MockProfileManipulationForCreateProfile) saveProfile(name string, pfile *profileFile) error {
@@ -112,14 +114,30 @@ func (m *MockProfileManipulationForCreateProfile) saveProfile(name string, pfile
 }
 
 func (m *MockProfileManipulationForCreateProfile) setProfile(pfile profileFile) error {
-	m.curprofile = pfile.Name
+	m.profileName = pfile.Name
 	return nil
 }
 
-func TestCreateProfile(t *testing.T) {
+func TestCreateProfileWithNothing(t *testing.T) {
+	// This simulates not having a .bcn directory
 	oper := &MockProfileManipulationForCreateProfile{
 		profiles:   map[string]*profileFile{},
-		curprofile: "adefault",
+		profileName: "adefault",
+		getProfileError: profileError{},
+	}
+
+	result := createProfile(oper, "newprofile")
+
+	if result.is_error != true {
+		t.Errorf("Expected an error but did not get one")
+	}
+}
+
+func TestCreateProfileWithExistingProfile(t *testing.T) {
+	oper := &MockProfileManipulationForCreateProfile{
+		profiles:   map[string]*profileFile{},
+		profileName: "adefault",
+		currentProfile: &profileFile{},
 	}
 
 	result := createProfile(oper, "newprofile")
@@ -128,7 +146,7 @@ func TestCreateProfile(t *testing.T) {
 		t.Errorf("Expected no error")
 	}
 
-	if oper.curprofile != "newprofile" {
+	if oper.profileName != "newprofile" {
 		t.Errorf("Expected current profile to be 'newprofile' but was not")
 	}
 
@@ -346,12 +364,8 @@ func TestInitializeProfileWhenNoFilesExist(t *testing.T) {
 
 	err := initializeProfiles(oper)
 
-	if err != nil {
-		t.Errorf("Expected no error but got: " + err.Error())
-	}
-
-	if oper.profileThatWasSet == nil {
-		t.Errorf("Expected a profile to be set")
+	if err == nil {
+		t.Errorf("Expected error but got none")
 	}
 }
 

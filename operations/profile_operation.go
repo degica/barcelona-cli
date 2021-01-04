@@ -86,9 +86,9 @@ func createProfile(oper profileManipulationInterface, name string) *runResult {
 		return error_result(err.Error())
 	}
 
-	profile, err := oper.getProfile()
-	if err != nil {
-		return error_result(err.Error())
+	profile, err2 := oper.getProfile()
+	if err2 != nil {
+		return error_result(err2.Error())
 	}
 
 	profile.Name = curr_name
@@ -97,9 +97,9 @@ func createProfile(oper profileManipulationInterface, name string) *runResult {
 		return error_result(saveError.Error())
 	}
 
-	newProfile, err := oper.getProfile()
-	if err != nil {
-		return error_result(err.Error())
+	newProfile, err3 := oper.getProfile()
+	if err3 != nil {
+		return error_result(err3.Error())
 	}
 
 	newProfile.Name = name
@@ -165,7 +165,7 @@ func initializeProfiles(oper profileManipulationInterface) error {
 
 	profile, err := oper.getProfile()
 	if err != nil {
-		profile = &profileFile{}
+		return err
 	}
 
 	profile.Name = "default"
@@ -194,19 +194,19 @@ func (oper ProfileOperation) getProfile() (*profileFile, error) {
 	pfile.Login.Token = oper.file_ops.GetToken()
 	pfile.Login.Endpoint = oper.file_ops.GetEndpoint()
 
-	privateKeyBytes, err := oper.file_ops.ReadFile(oper.file_ops.GetPrivateKeyPath())
-	if err != nil {
-		return nil, err
+	privateKeyBytes, err1 := oper.file_ops.ReadFile(oper.file_ops.GetPrivateKeyPath())
+	if err1 != nil {
+		return nil, err1
 	}
 
-	publicKeyBytes, err := oper.file_ops.ReadFile(oper.file_ops.GetPublicKeyPath())
-	if err != nil {
-		return nil, err
+	publicKeyBytes, err2 := oper.file_ops.ReadFile(oper.file_ops.GetPublicKeyPath())
+	if err2 != nil {
+		return nil, err2
 	}
 
-	certBytes, err := oper.file_ops.ReadFile(oper.file_ops.GetCertPath())
-	if err != nil {
-		return nil, err
+	certBytes, err3 := oper.file_ops.ReadFile(oper.file_ops.GetCertPath())
+	if err3 != nil {
+		return nil, err3
 	}
 
 	pfile.PrivateKey = string(privateKeyBytes)
