@@ -47,6 +47,10 @@ func (m LocalConfig) GetCertPath() string {
 	return m.certPath
 }
 
+func (m LocalConfig) GetConfigDir() string {
+	return m.configDir
+}
+
 func (m LocalConfig) IsDebug() bool {
 	return Debug
 }
