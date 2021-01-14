@@ -36,6 +36,7 @@ func main() {
 		cmd.NotificationCommand,
 		cmd.AppCommand,
 		cmd.ReviewCommand,
+		cmd.ProfileCommand,
 	}
 
 	app.Run(os.Args)
