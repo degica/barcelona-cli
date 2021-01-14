@@ -162,7 +162,7 @@ var RunCommand = cli.Command{
 			&utils.CommandRunner{},
 		)
 
-		if ssh.Run(oneoff.InteractiveRunCommand) != nil {
+		if ssh.Run(oneoff.InteractiveRunCommand) != nil && err != nil {
 			return cli.NewExitError(err.Error(), 1)
 		}
 
