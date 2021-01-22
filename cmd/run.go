@@ -123,7 +123,7 @@ var RunCommand = cli.Command{
 
 	LOOP:
 		for {
-			path := fmt.Sprintf("/oneoffs/%d", oneoff.ID)
+			path := fmt.Sprintf("/districts/%s/heritages/%s/oneoffs/%d", oneoff.District.Name, heritageName, oneoff.ID)
 			resp, err := api.DefaultClient.Get(path, nil)
 			if err != nil {
 				return cli.NewExitError(err.Error(), 1)
