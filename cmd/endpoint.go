@@ -40,10 +40,11 @@ var EndpointCommand = cli.Command{
 				},
 			},
 			Action: func(c *cli.Context) error {
-				endpointName := c.Args().Get(0)
-				if len(endpointName) == 0 {
-					return cli.NewExitError("endpoint name is required", 1)
+				if len(c.Args()) != 1 {
+					return cli.NewExitError("endpoint is invalid", 1)
 				}
+
+				endpointName := c.Args().First()
 
 				public := c.Bool("public")
 				request := api.Endpoint{
