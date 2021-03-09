@@ -45,6 +45,10 @@ var EndpointCommand = cli.Command{
 					return cli.NewExitError("endpoint name is required", 1)
 				}
 
+				if len(c.Args()) != 1 {
+					return cli.NewExitError("please place options and flags before the endpoint name.", 1)
+				}
+
 				public := c.Bool("public")
 				request := api.Endpoint{
 					Name:          endpointName,
