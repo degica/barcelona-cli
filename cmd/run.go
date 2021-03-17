@@ -44,10 +44,16 @@ var RunCommand = cli.Command{
 			Name:  "envvar, E",
 			Usage: "Environment variable to pass to task",
 		},
+		cli.StringFlag{
+			Name:  "b, branch",
+			Usage: "Git branch name",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		envName := c.String("environment")
 		heritageName := c.String("heritage-name")
+		branchName := c.String("branch")
+
 		detach := c.Bool("detach")
 		envVars := c.StringSlice("envvar")
 		envVarMap, loadEnvVarMapErr := loadEnvVars(envName)
@@ -58,6 +64,19 @@ var RunCommand = cli.Command{
 
 		if len(envName) > 0 && len(heritageName) > 0 {
 			return cli.NewExitError("environment and heritage-name are exclusive", 1)
+		}
+
+		if len(branchName) > 0 {
+			if len(envName) > 0 || len(heritageName) > 0 {
+				return cli.NewExitError("environment, heritage-name and branch-name are exclusive", 1)
+			}
+
+			name, err := getHeritageName(branchName)
+			if err != nil {
+				return err
+			}
+
+			heritageName = name
 		}
 
 		if len(heritageName) == 0 {
@@ -81,6 +100,7 @@ var RunCommand = cli.Command{
 		if len(c.Args()) == 0 {
 			return cli.NewExitError("Command is required", 1)
 		}
+
 		command := strings.Join(c.Args(), " ")
 		params := map[string]interface{}{
 			"interactive": !detach,
@@ -209,4 +229,41 @@ LOOP:
 	}
 
 	return nil
+}
+
+func getHeritageName(branchName string) (string, error) {
+	groupName, err := getGroupName()
+
+	if err != nil {
+		return "", err
+	}
+
+	review_apps, err := getReviewApps(groupName)
+
+	if err != nil {
+		return "", err
+	}
+
+	heritageName := ""
+	for _, app := range review_apps {
+		if app.Subject == branchName {
+			heritageName = app.Heritage.Name
+			break
+		}
+	}
+
+	if heritageName == "" {
+		return "", errors.New(fmt.Sprintf("heritage is not found by: %s", branchName))
+	}
+
+	return heritageName, nil
+}
+
+func getGroupName() (string, error) {
+	reviewDef, err := LoadReviewDefinition()
+	if err != nil {
+		return "", err
+	}
+
+	return reviewDef.GroupName, nil
 }

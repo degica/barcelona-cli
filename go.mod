@@ -3,6 +3,7 @@ module github.com/degica/barcelona-cli
 go 1.14
 
 require (
+	github.com/jarcoal/httpmock v1.0.8
 	github.com/mattn/go-runewidth v0.0.2 // indirect
 	github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect

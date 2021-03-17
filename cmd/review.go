@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/degica/barcelona-cli/api"
@@ -163,51 +162,6 @@ var ReviewCommand = cli.Command{
 				return nil
 			},
 		},
-		{
-			Name:  "run",
-			Usage: "Run command inside Barcelona environment by branch name",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "B, branch",
-					Usage: "Git branch name",
-				},
-			},
-			Action: func(c *cli.Context) error {
-				branchName := c.String("branch")
-				groupName, err := getGroupName()
-
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-
-				review_apps, err := getReviewApps(groupName)
-
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-
-				heritageName := getHeritageName(branchName, review_apps)
-
-				if heritageName == "" {
-					return cli.NewExitError("heritage is not found", 1)
-				}
-
-				command := strings.Join(c.Args(), " ")
-				params := map[string]interface{}{
-					"interactive": true,
-					"command":     command,
-					"env_vars":    make(map[string]string),
-				}
-
-				err = connectToHeritage(params, heritageName, false)
-
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-
-				return nil
-			},
-		},
 		ReviewGroupCommand,
 	},
 }
@@ -225,26 +179,6 @@ func getReviewApps(groupName string) ([]*api.ReviewApp, error) {
 	}
 
 	return appResp.ReviewApps, nil
-}
-
-func getHeritageName(branchName string, review_apps []*api.ReviewApp) string {
-	heritageName := ""
-	for _, app := range review_apps {
-		if app.Subject == branchName {
-			heritageName = app.Heritage.Name
-			break
-		}
-	}
-
-	return heritageName
-}
-func getGroupName() (string, error) {
-	reviewDef, err := LoadReviewDefinition()
-	if err != nil {
-		return "", err
-	}
-
-	return reviewDef.GroupName, nil
 }
 
 func renderApps(apps []*api.ReviewApp) {
