@@ -253,7 +253,7 @@ func getHeritageName(branchName string) (string, error) {
 	}
 
 	if heritageName == "" {
-		return "", errors.New(fmt.Sprintf("heritage is not found by: %s", branchName))
+		return "", errors.New(fmt.Sprintf("No heritage found for branch: %s", branchName))
 	}
 
 	return heritageName, nil
