@@ -94,9 +94,9 @@ func (_ MockProfileManipulation) GetEndpoint() string {
 
 type MockProfileManipulationForCreateProfile struct {
 	MockProfileManipulation
-	profiles   map[string]*profileFile
-	profileName string
-	currentProfile *profileFile
+	profiles        map[string]*profileFile
+	profileName     string
+	currentProfile  *profileFile
 	getProfileError error
 }
 
@@ -121,8 +121,8 @@ func (m *MockProfileManipulationForCreateProfile) setProfile(pfile profileFile) 
 func TestCreateProfileWithNothing(t *testing.T) {
 	// This simulates not having a .bcn directory
 	oper := &MockProfileManipulationForCreateProfile{
-		profiles:   map[string]*profileFile{},
-		profileName: "adefault",
+		profiles:        map[string]*profileFile{},
+		profileName:     "adefault",
 		getProfileError: profileError{},
 	}
 
@@ -135,8 +135,8 @@ func TestCreateProfileWithNothing(t *testing.T) {
 
 func TestCreateProfileWithExistingProfile(t *testing.T) {
 	oper := &MockProfileManipulationForCreateProfile{
-		profiles:   map[string]*profileFile{},
-		profileName: "adefault",
+		profiles:       map[string]*profileFile{},
+		profileName:    "adefault",
 		currentProfile: &profileFile{},
 	}
 
