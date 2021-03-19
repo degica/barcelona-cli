@@ -151,22 +151,34 @@ var ReviewCommand = cli.Command{
 					groupName = reviewDef.GroupName
 				}
 
-				resp, err := api.DefaultClient.Get("/review_groups/"+groupName+"/apps", nil)
+				review_apps, err := getReviewApps(groupName)
+
 				if err != nil {
 					return cli.NewExitError(err.Error(), 1)
 				}
-				var appResp api.ReviewAppResponse
-				err = json.Unmarshal(resp, &appResp)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				renderApps(appResp.ReviewApps)
+
+				renderApps(review_apps)
 
 				return nil
 			},
 		},
 		ReviewGroupCommand,
 	},
+}
+
+func getReviewApps(groupName string) ([]*api.ReviewApp, error) {
+	resp, err := api.DefaultClient.Get("/review_groups/"+groupName+"/apps", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var appResp api.ReviewAppResponse
+	err = json.Unmarshal(resp, &appResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return appResp.ReviewApps, nil
 }
 
 func renderApps(apps []*api.ReviewApp) {
