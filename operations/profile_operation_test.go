@@ -1,8 +1,9 @@
 package operations
 
 import (
-	"github.com/degica/barcelona-cli/config"
 	"testing"
+
+	"github.com/degica/barcelona-cli/config"
 )
 
 type MockProfileFileOps struct {
@@ -36,7 +37,7 @@ func (op MockProfileFileOps) GetCertPath() string {
 	return ""
 }
 
-func (op MockProfileFileOps) WriteLogin(auth string, token string, endpoint string) error {
+func (op MockProfileFileOps) WriteLogin(login *config.Login) error {
 	return nil
 }
 
@@ -94,9 +95,9 @@ func (_ MockProfileManipulation) GetEndpoint() string {
 
 type MockProfileManipulationForCreateProfile struct {
 	MockProfileManipulation
-	profiles   map[string]*profileFile
-	profileName string
-	currentProfile *profileFile
+	profiles        map[string]*profileFile
+	profileName     string
+	currentProfile  *profileFile
 	getProfileError error
 }
 
@@ -121,8 +122,8 @@ func (m *MockProfileManipulationForCreateProfile) setProfile(pfile profileFile) 
 func TestCreateProfileWithNothing(t *testing.T) {
 	// This simulates not having a .bcn directory
 	oper := &MockProfileManipulationForCreateProfile{
-		profiles:   map[string]*profileFile{},
-		profileName: "adefault",
+		profiles:        map[string]*profileFile{},
+		profileName:     "adefault",
 		getProfileError: profileError{},
 	}
 
@@ -135,8 +136,8 @@ func TestCreateProfileWithNothing(t *testing.T) {
 
 func TestCreateProfileWithExistingProfile(t *testing.T) {
 	oper := &MockProfileManipulationForCreateProfile{
-		profiles:   map[string]*profileFile{},
-		profileName: "adefault",
+		profiles:       map[string]*profileFile{},
+		profileName:    "adefault",
 		currentProfile: &profileFile{},
 	}
 
@@ -558,6 +559,7 @@ type MockProfileFileOpsForTestSetProfile struct {
 	writtenAuth     string
 	writtenToken    string
 	writtenEndpoint string
+	writtenVaultUrl string
 }
 
 func (op MockProfileFileOpsForTestSetProfile) GetPrivateKeyPath() string {
@@ -577,10 +579,11 @@ func (op *MockProfileFileOpsForTestSetProfile) WriteFile(path string, contents [
 	return nil
 }
 
-func (op *MockProfileFileOpsForTestSetProfile) WriteLogin(auth string, token string, endpoint string) error {
-	op.writtenToken = token
-	op.writtenAuth = auth
-	op.writtenEndpoint = endpoint
+func (op *MockProfileFileOpsForTestSetProfile) WriteLogin(login *config.Login) error {
+	op.writtenToken = login.Token
+	op.writtenAuth = login.Auth
+	op.writtenEndpoint = login.Endpoint
+	op.writtenVaultUrl = login.VaultUrl
 	return nil
 }
 
@@ -922,9 +925,11 @@ func TestSaveProfileContents(t *testing.T) {
 	profile := &profileFile{
 		Name: "hello2",
 		Login: config.Login{
-			Auth:     "theauth",
-			Token:    "thetoken",
-			Endpoint: "https://theendpoint",
+			Auth:       "theauth",
+			Token:      "thetoken",
+			Endpoint:   "https://theendpoint",
+			VaultUrl:   "https//example.com",
+			VaultToken: "test_token",
 		},
 		PrivateKey: "theprivatekey",
 		PublicKey:  "thepublickey",
@@ -934,7 +939,8 @@ func TestSaveProfileContents(t *testing.T) {
 	oper.saveProfile("hello2", profile)
 
 	writtenContent := string(saver.writtenBytes)
-	if writtenContent != `{"name":"hello2","login":{"auth":"theauth","token":"thetoken","endpoint":"https://theendpoint"},"privateKey":"theprivatekey","publicKey":"thepublickey","cert":"thecert"}` {
+	expected_string := `{"name":"hello2","login":{"auth":"theauth","token":"thetoken","endpoint":"https://theendpoint","vault_url":"https//example.com","vault_token":"test_token"},"privateKey":"theprivatekey","publicKey":"thepublickey","cert":"thecert"}`
+	if writtenContent != expected_string {
 		t.Errorf("writtenbytes was " + writtenContent)
 	}
 

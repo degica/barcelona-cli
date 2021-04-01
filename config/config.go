@@ -55,13 +55,7 @@ func (m LocalConfig) IsDebug() bool {
 	return Debug
 }
 
-func (m LocalConfig) WriteLogin(auth string, token string, endpoint string) error {
-	login := &Login{
-		Auth:     auth,
-		Token:    token,
-		Endpoint: endpoint,
-	}
-
+func (m LocalConfig) WriteLogin(login *Login) error {
 	b, err := json.Marshal(login)
 	if err != nil {
 		return err

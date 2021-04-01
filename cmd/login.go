@@ -8,6 +8,19 @@ import (
 	"github.com/urfave/cli"
 )
 
+func AutoRefreshVaultToken(app *cli.App) {
+	login := config.Get().LoadLogin()
+	if login.Auth != "vault" || login.VaultUrl == "" || login.VaultToken == "" {
+		return
+	}
+
+	args := []string{
+		app.Name, "login", "--auth", login.Auth, "--vault-token",
+		login.VaultToken, "--vault-url", login.VaultUrl, login.Endpoint}
+
+	app.Run(args)
+}
+
 var LoginCommand = cli.Command{
 	Name:      "login",
 	Usage:     "Login Barcelona",

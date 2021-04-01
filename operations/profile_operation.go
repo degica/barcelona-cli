@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+
+	"github.com/degica/barcelona-cli/config"
 )
 
 type profileError struct {
@@ -23,7 +25,7 @@ type ProfileFileOps interface {
 	GetPrivateKeyPath() string
 	GetPublicKeyPath() string
 	GetCertPath() string
-	WriteLogin(auth string, token string, endpoint string) error
+	WriteLogin(login *config.Login) error
 
 	GetAuth() string
 	GetToken() string
@@ -222,7 +224,7 @@ func (oper ProfileOperation) setProfile(profile profileFile) error {
 		return err
 	}
 
-	err1 := oper.file_ops.WriteLogin(profile.Login.Auth, profile.Login.Token, profile.Login.Endpoint)
+	err1 := oper.file_ops.WriteLogin(&profile.Login)
 	if err1 != nil {
 		return err1
 	}
