@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/degica/barcelona-cli/api"
-	"github.com/degica/barcelona-cli/config"
 )
 
 type mockLoginOperationError struct {
@@ -67,7 +66,7 @@ func (m mockLoginOperationExternals) Patch(path string, body io.Reader) ([]byte,
 	return m.patchBytes, m.patchError
 }
 
-func (m mockLoginOperationExternals) WriteLogin(login *config.Login) error {
+func (m mockLoginOperationExternals) WriteLogin(auth string, token string, endpoint string, vaultUrl string, vaultToken string) error {
 	return nil
 }
 

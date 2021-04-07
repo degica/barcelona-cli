@@ -48,9 +48,5 @@ func main() {
 
 	cmd.HeritageConfigFilePath = pwd + "/barcelona.yml"
 
-	err = app.Run(os.Args)
-
-	if len(os.Args) != 1 && err == nil {
-		cmd.AutoRefreshVaultToken(app)
-	}
+	app.Run(os.Args)
 }

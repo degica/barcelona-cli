@@ -18,6 +18,8 @@ type Config struct {
 	HttpClient *http.Client
 }
 
+var hasAutoRefresh = false
+
 type Client struct {
 	login  *config.Login
 	config *Config
@@ -101,6 +103,14 @@ func (cli *Client) ReloadDefaultClient() (*Client, error) {
 }
 
 func (cli *Client) Request(method string, path string, body io.Reader) ([]byte, error) {
+	if !hasAutoRefresh {
+		hasAutoRefresh = true
+		err := cli.autoRefreshVaultToken()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	url := cli.login.GetEndpoint() + pathPrefix + path
 
 	req, err := http.NewRequest(method, url, body)
@@ -149,4 +159,29 @@ func dump(dump []byte, err error) {
 
 	ss := regex.ReplaceAllString(s, "$1: [filtered]")
 	fmt.Printf("%s\n", ss)
+}
+
+func (cli *Client) autoRefreshVaultToken() error {
+	login := config.Get().LoadLogin()
+	if login.Auth != "vault" || login.VaultUrl == "" && login.VaultToken == "" {
+		return nil
+	}
+
+	user, err := cli.LoginWithVault(login.VaultUrl, login.VaultToken)
+
+	if err != nil {
+		return err
+	}
+
+	backend := login.Auth
+	endpoint := login.Endpoint
+	vaultUrl := login.VaultUrl
+	vaultToken := login.VaultToken
+
+	err = config.Get().WriteLogin(backend, user.Token, endpoint, vaultUrl, vaultToken)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

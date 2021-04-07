@@ -37,7 +37,7 @@ func (op MockProfileFileOps) GetCertPath() string {
 	return ""
 }
 
-func (op MockProfileFileOps) WriteLogin(login *config.Login) error {
+func (op MockProfileFileOps) WriteLogin(auth string, token string, endpoint string, vaultUrl string, vaultToken string) error {
 	return nil
 }
 
@@ -555,11 +555,12 @@ func TestGetProfileWithoutCert(t *testing.T) {
 
 type MockProfileFileOpsForTestSetProfile struct {
 	MockProfileFileOps
-	filesContents   map[string]string
-	writtenAuth     string
-	writtenToken    string
-	writtenEndpoint string
-	writtenVaultUrl string
+	filesContents     map[string]string
+	writtenAuth       string
+	writtenToken      string
+	writtenEndpoint   string
+	writtenVaultUrl   string
+	writtenVaultToken string
 }
 
 func (op MockProfileFileOpsForTestSetProfile) GetPrivateKeyPath() string {
@@ -579,11 +580,13 @@ func (op *MockProfileFileOpsForTestSetProfile) WriteFile(path string, contents [
 	return nil
 }
 
-func (op *MockProfileFileOpsForTestSetProfile) WriteLogin(login *config.Login) error {
-	op.writtenToken = login.Token
-	op.writtenAuth = login.Auth
-	op.writtenEndpoint = login.Endpoint
-	op.writtenVaultUrl = login.VaultUrl
+func (op *MockProfileFileOpsForTestSetProfile) WriteLogin(auth string, token string, endpoint string, vaultUrl string, vaultToken string) error {
+	op.writtenToken = token
+	op.writtenAuth = auth
+	op.writtenEndpoint = endpoint
+	op.writtenVaultUrl = vaultUrl
+	op.writtenVaultToken = vaultToken
+
 	return nil
 }
 

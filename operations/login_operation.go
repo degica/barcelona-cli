@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 
 	"github.com/degica/barcelona-cli/api"
-	"github.com/degica/barcelona-cli/config"
 	"github.com/degica/barcelona-cli/utils"
 )
 
@@ -57,7 +56,7 @@ type LoginOperationExternals interface {
 	ReloadDefaultClient() (LoginOperationClient, error)
 
 	// Config stuff
-	WriteLogin(*config.Login) error
+	WriteLogin(auth string, token string, endpoint string, vaultUrl string, vaultToken string) error
 	GetPublicKeyPath() string
 	GetPrivateKeyPath() string
 }
@@ -95,15 +94,8 @@ func githubLogin(oper LoginOperation, user *api.User) *runResult {
 		return error_result(err.Error())
 	}
 
-	login := &config.Login{
-		Auth:       oper.backend,
-		Token:      user.Token,
-		Endpoint:   oper.endpoint,
-		VaultUrl:   oper.vaultUrl,
-		VaultToken: oper.ghToken,
-	}
+	err = oper.ext.WriteLogin(oper.backend, user.Token, oper.endpoint, oper.vaultUrl, oper.ghToken)
 
-	err = oper.ext.WriteLogin(login)
 	if err != nil {
 		return error_result(err.Error())
 	}
@@ -129,15 +121,7 @@ func vaultLogin(oper LoginOperation, user *api.User) *runResult {
 		return error_result(err.Error())
 	}
 
-	login := &config.Login{
-		Auth:       oper.backend,
-		Token:      user.Token,
-		Endpoint:   oper.endpoint,
-		VaultUrl:   oper.vaultUrl,
-		VaultToken: oper.vaultToken,
-	}
-
-	err = oper.ext.WriteLogin(login)
+	err = oper.ext.WriteLogin(oper.backend, user.Token, oper.endpoint, oper.vaultUrl, oper.vaultToken)
 	if err != nil {
 		return error_result(err.Error())
 	}
