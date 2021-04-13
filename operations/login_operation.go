@@ -56,7 +56,7 @@ type LoginOperationExternals interface {
 	ReloadDefaultClient() (LoginOperationClient, error)
 
 	// Config stuff
-	WriteLogin(auth string, token string, endpoint string) error
+	WriteLogin(auth string, token string, endpoint string, vaultUrl string, vaultToken string) error
 	GetPublicKeyPath() string
 	GetPrivateKeyPath() string
 }
@@ -94,7 +94,8 @@ func githubLogin(oper LoginOperation, user *api.User) *runResult {
 		return error_result(err.Error())
 	}
 
-	err = oper.ext.WriteLogin(oper.backend, user.Token, oper.endpoint)
+	err = oper.ext.WriteLogin(oper.backend, user.Token, oper.endpoint, oper.vaultUrl, oper.ghToken)
+
 	if err != nil {
 		return error_result(err.Error())
 	}
@@ -114,11 +115,13 @@ func vaultLogin(oper LoginOperation, user *api.User) *runResult {
 		fmt.Println("URL of vault server (e.g. https://vault.degica.com)")
 		url = utils.Ask("Vault server URL", true, false, oper.ext)
 	}
+
 	user, err := oper.ext.LoginWithVault(url, token)
 	if err != nil {
 		return error_result(err.Error())
 	}
-	err = oper.ext.WriteLogin(oper.backend, user.Token, oper.endpoint)
+
+	err = oper.ext.WriteLogin(oper.backend, user.Token, oper.endpoint, oper.vaultUrl, oper.vaultToken)
 	if err != nil {
 		return error_result(err.Error())
 	}
