@@ -23,8 +23,14 @@ var CreateCommand = cli.Command{
 			Value: "latest",
 			Usage: "District name",
 		},
+		cli.BoolTFlag{
+			Name:  "quiet, q",
+			Usage: "Do not print output if successful. By default it is true",
+		},
 	},
 	Action: func(c *cli.Context) error {
+		quiet := c.Bool("quiet")
+
 		h, err := LoadEnvironment(c.String("environment"))
 		if err != nil {
 			return cli.NewExitError(err.Error(), 1)
@@ -36,7 +42,10 @@ var CreateCommand = cli.Command{
 		if err != nil {
 			return cli.NewExitError(err.Error(), 1)
 		}
-		resp.Print()
+
+		if !quiet {
+			resp.Print()
+		}
 
 		return nil
 	},
