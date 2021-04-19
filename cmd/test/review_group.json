@@ -1,0 +1,13 @@
+{
+  "review_apps": [
+    {
+      "domain": "test-branch.review.basedomain.com",
+      "subject": "test-branch",
+      "review_group": {
+      },
+      "heritage": {
+        "name": "review-heritage"
+      }
+    }
+  ]
+}

@@ -1,11 +1,11 @@
 package config
 
-import ()
-
 type Login struct {
-	Auth     string `json:"auth"`
-	Token    string `json:"token"`
-	Endpoint string `json:"endpoint"`
+	Auth       string `json:"auth"`
+	Token      string `json:"token"`
+	Endpoint   string `json:"endpoint"`
+	VaultUrl   string `json:"vault_url"`
+	VaultToken string `json:"vault_token"`
 }
 
 func (login Login) GetAuth() string {

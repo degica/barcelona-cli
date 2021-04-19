@@ -4,12 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"os"
 
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/degica/barcelona-cli/api"
 )
+
+var HeritageConfigFilePath string
 
 func PrintOneoff(o *api.Oneoff) {
 	fmt.Printf("Task ARN: %s\n", o.TaskARN)
@@ -21,13 +22,7 @@ type HeritageConfig struct {
 }
 
 func loadHeritageConfig() (*HeritageConfig, error) {
-	pwd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-	configFilePath := pwd + "/barcelona.yml"
-
-	configFile, err := ioutil.ReadFile(configFilePath)
+	configFile, err := ioutil.ReadFile(HeritageConfigFilePath)
 	if err != nil {
 		return nil, err
 	}

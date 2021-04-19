@@ -12,7 +12,6 @@ import (
 	"github.com/degica/barcelona-cli/api"
 	"github.com/degica/barcelona-cli/config"
 	"github.com/degica/barcelona-cli/utils"
-
 	"github.com/urfave/cli"
 )
 
@@ -45,10 +44,16 @@ var RunCommand = cli.Command{
 			Name:  "envvar, E",
 			Usage: "Environment variable to pass to task",
 		},
+		cli.StringFlag{
+			Name:  "b, branch",
+			Usage: "Git branch name",
+		},
 	},
 	Action: func(c *cli.Context) error {
 		envName := c.String("environment")
 		heritageName := c.String("heritage-name")
+		branchName := c.String("branch")
+
 		detach := c.Bool("detach")
 		envVars := c.StringSlice("envvar")
 		envVarMap, loadEnvVarMapErr := loadEnvVars(envName)
@@ -59,6 +64,19 @@ var RunCommand = cli.Command{
 
 		if len(envName) > 0 && len(heritageName) > 0 {
 			return cli.NewExitError("environment and heritage-name are exclusive", 1)
+		}
+
+		if len(branchName) > 0 {
+			if len(envName) > 0 || len(heritageName) > 0 {
+				return cli.NewExitError("environment, heritage-name and branch-name are exclusive", 1)
+			}
+
+			name, err := getHeritageName(branchName)
+			if err != nil {
+				return err
+			}
+
+			heritageName = name
 		}
 
 		if len(heritageName) == 0 {
@@ -82,6 +100,7 @@ var RunCommand = cli.Command{
 		if len(c.Args()) == 0 {
 			return cli.NewExitError("Command is required", 1)
 		}
+
 		command := strings.Join(c.Args(), " ")
 		params := map[string]interface{}{
 			"interactive": !detach,
@@ -97,72 +116,9 @@ var RunCommand = cli.Command{
 		if user != "" {
 			params["user"] = user
 		}
-		j, err := json.Marshal(params)
+		err := connectToHeritage(params, heritageName, detach)
+
 		if err != nil {
-			return cli.NewExitError(err.Error(), 1)
-		}
-
-		resp, err := api.DefaultClient.Post("/heritages/"+heritageName+"/oneoffs", bytes.NewBuffer(j))
-		if err != nil {
-			return cli.NewExitError(err.Error(), 1)
-		}
-		var respOneoff api.OneoffResponse
-		err = json.Unmarshal(resp, &respOneoff)
-		if err != nil {
-			return cli.NewExitError(err.Error(), 1)
-		}
-		oneoff := respOneoff.Oneoff
-		certificate := respOneoff.Certificate
-
-		if detach {
-			PrintOneoff(oneoff)
-			return nil
-		}
-
-		fmt.Println("Waiting for the process to start")
-
-	LOOP:
-		for {
-			path := fmt.Sprintf("/districts/%s/heritages/%s/oneoffs/%d", oneoff.District.Name, heritageName, oneoff.ID)
-			resp, err := api.DefaultClient.Get(path, nil)
-			if err != nil {
-				return cli.NewExitError(err.Error(), 1)
-			}
-			var respOneoff api.OneoffResponse
-			err = json.Unmarshal(resp, &respOneoff)
-			if err != nil {
-				return cli.NewExitError(err.Error(), 1)
-			}
-			switch respOneoff.Oneoff.Status {
-			case "RUNNING":
-				break LOOP
-			case "PENDING":
-				time.Sleep(3 * time.Second)
-			default:
-				// INACTIVE or STOPPED
-				return cli.NewExitError("Unexpected task status "+respOneoff.Oneoff.Status, 1)
-			}
-		}
-
-		fmt.Println("Connecting to the process")
-
-		var matchedCI *api.ContainerInstance
-		for _, ci := range oneoff.District.ContainerInstances {
-			if ci.ContainerInstanceArn == oneoff.ContainerInstanceARN {
-				matchedCI = ci
-				break
-			}
-		}
-
-		ssh := utils.NewSshCommand(
-			matchedCI.PrivateIPAddress,
-			oneoff.District.BastionIP,
-			certificate,
-			config.Get(),
-			&utils.CommandRunner{},
-		)
-
-		if ssh.Run(oneoff.InteractiveRunCommand) != nil && err != nil {
 			return cli.NewExitError(err.Error(), 1)
 		}
 
@@ -197,4 +153,117 @@ func checkEnvVars(envvarSlice []string) (map[string]string, error) {
 		result[re.FindStringSubmatch(envvar)[1]] = re.FindStringSubmatch(envvar)[2]
 	}
 	return result, nil
+}
+
+func connectToHeritage(params map[string]interface{}, heritageName string, detach bool) error {
+	j, err := json.Marshal(params)
+
+	if err != nil {
+		return err
+	}
+
+	resp, err := api.DefaultClient.Post("/heritages/"+heritageName+"/oneoffs", bytes.NewBuffer(j))
+	if err != nil {
+		return err
+	}
+
+	var respOneoff api.OneoffResponse
+	err = json.Unmarshal(resp, &respOneoff)
+	if err != nil {
+		return cli.NewExitError(err.Error(), 1)
+	}
+
+	oneoff := respOneoff.Oneoff
+	certificate := respOneoff.Certificate
+
+	if detach {
+		PrintOneoff(oneoff)
+		return nil
+	}
+
+	fmt.Println("Waiting for the process to start")
+
+LOOP:
+	for {
+		path := fmt.Sprintf("/districts/%s/heritages/%s/oneoffs/%d", oneoff.District.Name, heritageName, oneoff.ID)
+		resp, err := api.DefaultClient.Get(path, nil)
+		if err != nil {
+			return cli.NewExitError(err.Error(), 1)
+		}
+		var respOneoff api.OneoffResponse
+		err = json.Unmarshal(resp, &respOneoff)
+		if err != nil {
+			return cli.NewExitError(err.Error(), 1)
+		}
+		switch respOneoff.Oneoff.Status {
+		case "RUNNING":
+			break LOOP
+		case "PENDING":
+			time.Sleep(3 * time.Second)
+		default:
+			// INACTIVE or STOPPED
+			return cli.NewExitError("Unexpected task status "+respOneoff.Oneoff.Status, 1)
+		}
+	}
+
+	fmt.Println("Connecting to the process")
+
+	var matchedCI *api.ContainerInstance
+	for _, ci := range oneoff.District.ContainerInstances {
+		if ci.ContainerInstanceArn == oneoff.ContainerInstanceARN {
+			matchedCI = ci
+			break
+		}
+	}
+
+	ssh := utils.NewSshCommand(
+		matchedCI.PrivateIPAddress,
+		oneoff.District.BastionIP,
+		certificate,
+		config.Get(),
+		&utils.CommandRunner{},
+	)
+
+	if ssh.Run(oneoff.InteractiveRunCommand) != nil && err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getHeritageName(branchName string) (string, error) {
+	groupName, err := getGroupName()
+
+	if err != nil {
+		return "", err
+	}
+
+	review_apps, err := getReviewApps(groupName)
+
+	if err != nil {
+		return "", err
+	}
+
+	heritageName := ""
+	for _, app := range review_apps {
+		if app.Subject == branchName {
+			heritageName = app.Heritage.Name
+			break
+		}
+	}
+
+	if heritageName == "" {
+		return "", errors.New(fmt.Sprintf("No heritage found for branch: %s", branchName))
+	}
+
+	return heritageName, nil
+}
+
+func getGroupName() (string, error) {
+	reviewDef, err := LoadReviewDefinition()
+	if err != nil {
+		return "", err
+	}
+
+	return reviewDef.GroupName, nil
 }
