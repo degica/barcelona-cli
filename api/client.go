@@ -163,7 +163,7 @@ func dump(dump []byte, err error) {
 
 func (cli *Client) autoRefreshVaultToken() error {
 	login := config.Get().LoadLogin()
-	if login.Auth != "vault" || login.VaultUrl == "" && login.VaultToken == "" {
+	if login.Auth != "vault" || login.VaultUrl == "" || login.VaultToken == "" {
 		return nil
 	}
 
