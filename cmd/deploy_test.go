@@ -6,21 +6,19 @@ import (
 	"github.com/jarcoal/httpmock"
 )
 
-func Example_create_heritage_quiet_false() {
-	app := newTestApp(CreateCommand)
+func Example_deploy_quiet_false() {
+	app := newTestApp(DeployCommand)
 	app.Writer = os.Stdout
-	testArgs := []string{"bcn", "create", "-e", "test", "--quiet=false"}
+	testArgs := []string{"bcn", "deploy", "-e", "test", "--quiet=false"}
 	pwd, _ := os.Getwd()
 	endpoint := os.Getenv("BARCELONA_ENDPOINT")
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", endpoint+"/v1/auth/github/login",
-		httpmock.NewStringResponder(200, "{}"))
-
 	resJson, _ := readJsonResponse(pwd + "/test/create_heritage.json")
-	httpmock.RegisterResponder("POST", endpoint+"/v1/districts/default/heritages",
+
+	httpmock.RegisterResponder("PATCH", endpoint+"/v1/heritages/barcelona",
 		httpmock.NewStringResponder(200, resJson))
 
 	app.Run(testArgs)
@@ -37,9 +35,9 @@ func Example_create_heritage_quiet_false() {
 	// Environment Variables
 }
 
-func Example_create_heritage_quiet_true() {
-	app := newTestApp(CreateCommand)
-	testArgs := []string{"bcn", "create", "-e", "test"}
+func Example_deploy_quiet_true() {
+	app := newTestApp(DeployCommand)
+	testArgs := []string{"bcn", "deploy", "-e", "test"}
 	pwd, _ := os.Getwd()
 	app.Writer = os.Stdout
 	endpoint := os.Getenv("BARCELONA_ENDPOINT")
@@ -52,7 +50,7 @@ func Example_create_heritage_quiet_true() {
 
 	resJson, _ := readJsonResponse(pwd + "/test/create_heritage.json")
 
-	httpmock.RegisterResponder("POST", endpoint+"/v1/districts/default/heritages",
+	httpmock.RegisterResponder("PATCH", endpoint+"/v1/heritages/barcelona",
 		httpmock.NewStringResponder(200, resJson))
 
 	app.Run(testArgs)

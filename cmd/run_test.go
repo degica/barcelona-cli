@@ -47,7 +47,7 @@ func TestRunByBranchName(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder("POST", "https://vault.degica.com/v1/auth/github/login",
+	httpmock.RegisterResponder("POST", endpoint+"/v1/auth/github/login",
 		httpmock.NewStringResponder(200, "{}"))
 
 	resJson, err := readJsonResponse(pwd + "/test/review_group.json")
