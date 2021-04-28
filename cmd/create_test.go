@@ -6,10 +6,10 @@ import (
 	"github.com/jarcoal/httpmock"
 )
 
-func Example_create_heritage_quiet_false() {
+func Example_create_heritage() {
 	app := newTestApp(CreateCommand)
 	app.Writer = os.Stdout
-	testArgs := []string{"bcn", "create", "-e", "test", "--quiet=false"}
+	testArgs := []string{"bcn", "create", "-e", "test"}
 	pwd, _ := os.Getwd()
 	endpoint := os.Getenv("BARCELONA_ENDPOINT")
 
@@ -35,27 +35,4 @@ func Example_create_heritage_quiet_false() {
 	// Scheduled Tasks:
 	// rate(1 minute)       echo hello
 	// Environment Variables
-}
-
-func Example_create_heritage_quiet_true() {
-	app := newTestApp(CreateCommand)
-	testArgs := []string{"bcn", "create", "-e", "test"}
-	pwd, _ := os.Getwd()
-	app.Writer = os.Stdout
-	endpoint := os.Getenv("BARCELONA_ENDPOINT")
-
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-
-	httpmock.RegisterResponder("POST", endpoint+"/v1/auth/github/login",
-		httpmock.NewStringResponder(200, "{}"))
-
-	resJson, _ := readJsonResponse(pwd + "/test/create_heritage.json")
-
-	httpmock.RegisterResponder("POST", endpoint+"/v1/districts/default/heritages",
-		httpmock.NewStringResponder(200, resJson))
-
-	app.Run(testArgs)
-
-	// Output:
 }
