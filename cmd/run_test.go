@@ -88,7 +88,7 @@ func newTestApp(command cli.Command) *cli.App {
 	a.Commands = []cli.Command{command}
 
 	pwd, _ := os.Getwd()
-	HeritageConfigFilePath = pwd + "/test/test-barcerola.yml"
+	HeritageConfigFilePath = pwd + "/test/test-barcelona.yml"
 
 	return a
 }
