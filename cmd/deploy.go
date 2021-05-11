@@ -24,9 +24,9 @@ var DeployCommand = cli.Command{
 			Name:  "heritage-token",
 			Usage: "Heritage token",
 		},
-		cli.BoolFlag{
+		cli.BoolTFlag{
 			Name:  "quiet, q",
-			Usage: "Do not print output if successful",
+			Usage: "Do not print output if successful. By default it is true",
 		},
 	},
 	Action: func(c *cli.Context) error {
