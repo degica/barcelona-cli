@@ -38,6 +38,7 @@ func main() {
 		cmd.AppCommand,
 		cmd.ReviewCommand,
 		cmd.ProfileCommand,
+		cmd.SecretCommand,
 	}
 
 	pwd, err := os.Getwd()
