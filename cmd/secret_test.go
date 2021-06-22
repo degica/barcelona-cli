@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/jarcoal/httpmock"
@@ -55,11 +56,13 @@ func Example_secret_delete() {
 }
 
 func Example_secret_delete_with_slash_name() {
+
 	pwd, _ := os.Getwd()
 
 	HeritageConfigFilePath = pwd + "/test/test-barcerola.yml"
-
 	app := newTestApp(SecretCommand)
+	endpoint := os.Getenv("BARCELONA_ENDPOINT")
+
 	testArgs := []string{
 		"bcn", "secret", "delete", "-n", "hello/test", "-d", "staging"}
 
@@ -67,11 +70,9 @@ func Example_secret_delete_with_slash_name() {
 	defer httpmock.DeactivateAndReset()
 
 	resJson, _ := readJsonResponse(pwd + "/test/secret_remove.json")
-	httpmock.RegisterResponder("DELETE", "https://barcelona.degica.com/v1/districts/staging/ssm_parameters/hello%2Ftest",
+
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("%s/v1/districts/staging/ssm_parameters/hello%%2Ftest", endpoint),
 		httpmock.NewStringResponder(200, resJson))
 
 	app.Run(testArgs)
-
-	// Output:
-	// {"deleted_parameters":["bcn-tests"],"invalid_parameters":[]}
 }
