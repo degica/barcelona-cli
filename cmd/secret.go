@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/url"
 
 	"github.com/degica/barcelona-cli/api"
 	"github.com/urfave/cli"
@@ -67,8 +68,8 @@ var SecretCommand = cli.Command{
 				},
 			},
 			Action: func(c *cli.Context) error {
-				parameterName := c.String("name")
 				district := c.String("district")
+				parameterName := url.QueryEscape(c.String("name"))
 
 				resp, err := api.DefaultClient.Delete("/districts/"+district+"/ssm_parameters/"+parameterName, nil)
 
