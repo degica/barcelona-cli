@@ -53,3 +53,25 @@ func Example_secret_delete() {
 	// Output:
 	// {"deleted_parameters":["bcn-tests"],"invalid_parameters":[]}
 }
+
+func Example_secret_delete_with_slash_name() {
+	pwd, _ := os.Getwd()
+
+	HeritageConfigFilePath = pwd + "/test/test-barcerola.yml"
+
+	app := newTestApp(SecretCommand)
+	testArgs := []string{
+		"bcn", "secret", "delete", "-n", "hello/test", "-d", "staging"}
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	resJson, _ := readJsonResponse(pwd + "/test/secret_remove.json")
+	httpmock.RegisterResponder("DELETE", "https://barcelona.degica.com/v1/districts/staging/ssm_parameters/hello%2Ftest",
+		httpmock.NewStringResponder(200, resJson))
+
+	app.Run(testArgs)
+
+	// Output:
+	// {"deleted_parameters":["bcn-tests"],"invalid_parameters":[]}
+}
