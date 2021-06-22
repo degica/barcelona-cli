@@ -1,0 +1,52 @@
+web_base: &web_base
+  service_type: web
+
+review:
+  group: test1
+
+  services:
+    - <<: *web_base
+      name: web
+      memory: 256
+
+environments:
+  production:
+    name: barcelona2
+    image_name: test
+    before_deploy: rake db:migrate
+    scheduled_tasks:
+    services:
+      - name: web
+        service_type: web
+        cpu: 128
+        memory: 256
+        command: puma -C config/puma.rb
+        web_container_port: 3000
+        force_ssl: true
+        listeners:
+          - endpoint: barcelona-second
+            health_check_path: /health_check
+      - name: worker
+        command: rake jobs:work
+        cpu: 128
+        memory: 256
+  test:
+    name: barcelona
+    image_name: test2
+    before_deploy: rake db:migrate
+    scheduled_tasks:
+    services:
+      - name: web
+        service_type: web
+        cpu: 128
+        memory: 256
+        command: puma -C config/puma.rb
+        web_container_port: 3000
+        force_ssl: true
+        listeners:
+          - endpoint: barcelona
+            health_check_path: /health_check
+      - name: worker
+        command: rake jobs:work
+        cpu: 128
+        memory: 256
