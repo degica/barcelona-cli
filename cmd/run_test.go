@@ -39,9 +39,6 @@ func TestCheckEnvVarsError(t *testing.T) {
 
 func TestRunByBranchName(t *testing.T) {
 	pwd, _ := os.Getwd()
-
-	HeritageConfigFilePath = pwd + "/test/test-barcerola.yml"
-
 	app := newTestApp(RunCommand)
 	endpoint := os.Getenv("BARCELONA_ENDPOINT")
 
@@ -49,6 +46,9 @@ func TestRunByBranchName(t *testing.T) {
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("POST", endpoint+"/v1/auth/github/login",
+		httpmock.NewStringResponder(200, "{}"))
 
 	resJson, err := readJsonResponse(pwd + "/test/review_group.json")
 	if err != nil {
@@ -86,6 +86,9 @@ func newTestApp(command cli.Command) *cli.App {
 	a.Name = "bcn"
 	a.Writer = ioutil.Discard
 	a.Commands = []cli.Command{command}
+
+	pwd, _ := os.Getwd()
+	HeritageConfigFilePath = pwd + "/test/test-barcelona.yml"
 
 	return a
 }
