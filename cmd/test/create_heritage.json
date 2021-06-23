@@ -1,0 +1,60 @@
+{
+  "heritage": {
+    "name": "nginx",
+    "image_name": "nginx",
+    "image_tag": "latest",
+    "env_vars": {},
+    "before_deploy": "echo hello",
+    "token": "560d9e10-70ce-4f47-82b8-37d47761116d",
+    "version": 1,
+    "scheduled_tasks": [
+      { "schedule": "rate(1 minute)", "command": "echo hello" }
+    ],
+    "environment": [],
+    "deployed": true,
+    "services": [
+      {
+        "name": "web",
+        "public": true,
+        "command": "nginx",
+        "cpu": 128,
+        "memory": 256,
+        "endpoint": null,
+        "status": "not_created",
+        "deployed": true,
+        "port_mappings": [
+        ],
+        "running_count": null,
+        "pending_count": null,
+        "desired_count": null,
+        "reverse_proxy_image": "org/custom_revpro:v1.2",
+        "hosts": [
+          {
+            "hostname": "awesome-app.degica.com",
+            "ssl_cert_path": "s3://degica-bucket/path/to/cert",
+            "ssl_key_path": "s3://degica-bucket/path/to/key"
+          }
+        ],
+        "service_type": "web",
+        "force_ssl": true,
+        "health_check": { "protocol": "tcp", "port": 1111 }
+      }
+    ],
+    "district": {
+      "name": "district1",
+      "region": "us-east-1",
+      "s3_bucket_name": "bucket_name",
+      "container_instances": [],
+      "stack_status": null,
+      "nat_type": "instance",
+      "cluster_size": 1,
+      "cluster_instance_type": "t3.small",
+      "cluster_backend": "autoscaling",
+      "cidr_block": "",
+      "stack_name": "barcelona-district1",
+      "bastion_ip": null,
+      "aws_access_key_id": "aws_access_key_id",
+      "aws_role": null
+    }
+  }
+}
