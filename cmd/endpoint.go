@@ -1,235 +1,150 @@
 package cmd
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"os"
-
 	"github.com/degica/barcelona-cli/api"
+	"github.com/degica/barcelona-cli/operations"
 	"github.com/degica/barcelona-cli/utils"
-	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli"
 )
 
-var EndpointCommand = cli.Command{
-	Name:  "endpoint",
-	Usage: "Endpoint operations",
-	Subcommands: []cli.Command{
-		{
+func getEndpointSubcommands() []cli.Command {
+	districtFlag := cli.StringFlag{
+		Name:  "district, d",
+		Value: "default",
+		Usage: "AWS region",
+	}
+
+	publicFlag := cli.BoolFlag{
+		Name:  "public",
+		Usage: "Public facing endpoint",
+	}
+
+	certificateFlag := cli.StringFlag{
+		Name:  "certificate-arn",
+		Usage: "ACM Certificate ARN",
+	}
+
+	sslPolicyFlag := cli.StringFlag{
+		Name:  "ssl-policy",
+		Usage: "HTTPS SSL Policy",
+	}
+
+	noConfirmFlag := cli.BoolFlag{
+		Name: "no-confirmation",
+	}
+
+	endpointSubcommands := map[operations.OperationType]cli.Command{
+		operations.Create: cli.Command{
 			Name:      "create",
 			Usage:     "Create a new endpoint",
 			ArgsUsage: "ENDPOINT_NAME",
 			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "district, d",
-					Value: "default",
-					Usage: "AWS region",
-				},
-				cli.BoolFlag{
-					Name:  "public",
-					Usage: "Public facing endpoint",
-				},
-				cli.StringFlag{
-					Name:  "certificate-arn",
-					Usage: "ACM Certificate ARN",
-				},
-				cli.StringFlag{
-					Name:  "ssl-policy",
-					Usage: "HTTPS SSL Policy",
-				},
-			},
-			Action: func(c *cli.Context) error {
-				endpointName := c.Args().Get(0)
-				if len(endpointName) == 0 {
-					return cli.NewExitError("endpoint name is required", 1)
-				}
-
-				if len(c.Args()) != 1 {
-					return cli.NewExitError("please place options and flags before the endpoint name.", 1)
-				}
-
-				public := c.Bool("public")
-				request := api.Endpoint{
-					Name:          endpointName,
-					Public:        &public,
-					CertificateID: c.String("certificate-arn"),
-					SslPolicy:     c.String("ssl-policy"),
-				}
-
-				b, err := json.Marshal(&request)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-
-				resp, err := api.DefaultClient.Request("POST", fmt.Sprintf("/districts/%s/endpoints", c.String("district")), bytes.NewBuffer(b))
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				var eResp api.EndpointResponse
-				err = json.Unmarshal(resp, &eResp)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				printEndpoint(eResp.Endpoint)
-
-				return nil
+				districtFlag,
+				publicFlag,
+				certificateFlag,
+				sslPolicyFlag,
 			},
 		},
-		{
-			Name:      "show",
-			Usage:     "Show endpoint information",
-			ArgsUsage: "ENDPOINT_NAME",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "district, d",
-					Value: "default",
-					Usage: "District name",
-				},
-			},
-			Action: func(c *cli.Context) error {
-				endpointName := c.Args().Get(0)
-				if len(endpointName) == 0 {
-					return cli.NewExitError("endpoint name is required", 1)
-				}
 
-				resp, err := api.DefaultClient.Request("GET", fmt.Sprintf("/districts/%s/endpoints/%s", c.String("district"), endpointName), nil)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				var eResp api.EndpointResponse
-				err = json.Unmarshal(resp, &eResp)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				printEndpoint(eResp.Endpoint)
-
-				return nil
-			},
-		},
-		{
-			Name:  "list",
-			Usage: "List endpoints",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "district, d",
-					Value: "default",
-					Usage: "District name",
-				},
-			},
-			Action: func(c *cli.Context) error {
-				resp, err := api.DefaultClient.Request("GET", fmt.Sprintf("/districts/%s/endpoints", c.String("district")), nil)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				var eResp api.EndpointResponse
-				err = json.Unmarshal(resp, &eResp)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				printEndpoints(eResp.Endpoints)
-
-				return nil
-			},
-		},
-		{
+		operations.Update: cli.Command{
 			Name:      "update",
 			Usage:     "Update an endpoint",
 			ArgsUsage: "ENDPOINT_NAME",
 			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "district, d",
-					Value: "default",
-					Usage: "District name",
-				},
-				cli.StringFlag{
-					Name:  "certificate-arn",
-					Usage: "ACM Certificate ARN",
-				},
-				cli.StringFlag{
-
-					Usage: "HTTPS SSL Policy",
-				},
-			},
-			Action: func(c *cli.Context) error {
-				endpointName := c.Args().Get(0)
-				if len(endpointName) == 0 {
-					return cli.NewExitError("endpoint name is required", 1)
-				}
-
-				request := api.Endpoint{
-					CertificateID: c.String("certificate-arn"),
-					SslPolicy:     c.String("ssl-policy"),
-				}
-
-				b, err := json.Marshal(&request)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-
-				resp, err := api.DefaultClient.Request("PATCH", fmt.Sprintf("/districts/%s/endpoints/%s", c.String("district"), endpointName), bytes.NewBuffer(b))
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				var eResp api.EndpointResponse
-				err = json.Unmarshal(resp, &eResp)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				printEndpoint(eResp.Endpoint)
-
-				return nil
+				districtFlag,
+				certificateFlag,
+				sslPolicyFlag,
 			},
 		},
-		{
+
+		operations.Delete: cli.Command{
 			Name:      "delete",
 			Usage:     "Delete an endpoint",
 			ArgsUsage: "ENDPOINT_NAME",
 			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "district, d",
-					Value: "default",
-					Usage: "District name",
-				},
-				cli.BoolFlag{
-					Name: "no-confirmation",
-				},
-			},
-			Action: func(c *cli.Context) error {
-				endpointName := c.Args().Get(0)
-				if len(endpointName) == 0 {
-					return cli.NewExitError("endpoint name is required", 1)
-				}
-
-				fmt.Printf("You are attempting to delete /%s/endpoints/%s\n", c.String("district"), endpointName)
-				if !c.Bool("no-confirmation") && !utils.AreYouSure("This operation cannot be undone. Are you sure?", utils.NewStdinInputReader()) {
-					return nil
-				}
-
-				_, err := api.DefaultClient.Request("DELETE", fmt.Sprintf("/districts/%s/endpoints/%s", c.String("district"), endpointName), nil)
-				if err != nil {
-					return cli.NewExitError(err.Error(), 1)
-				}
-				return nil
+				districtFlag,
+				noConfirmFlag,
 			},
 		},
-	},
-}
 
-func printEndpoint(e *api.Endpoint) {
-	fmt.Printf("Name: %s\n", e.Name)
-	fmt.Printf("Public: %t\n", *e.Public)
-	fmt.Printf("SSL Policy: %s\n", e.SslPolicy)
-	fmt.Printf("Certificate ARN: %s\n", e.CertificateID)
-	fmt.Printf("DNS Name: %s\n", e.DNSName)
-}
+		operations.Show: cli.Command{
+			Name:      "show",
+			Usage:     "Show endpoint information",
+			ArgsUsage: "ENDPOINT_NAME",
+			Flags: []cli.Flag{
+				districtFlag,
+			},
+		},
 
-func printEndpoints(es []*api.Endpoint) {
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Name", "District", "Public", "SSL Policy", "Cert ID"})
-	table.SetBorder(false)
-	for _, e := range es {
-		table.Append([]string{e.Name, e.District.Name, fmt.Sprintf("%t", *e.Public), e.SslPolicy, e.CertificateID})
+		operations.List: cli.Command{
+			Name:  "list",
+			Usage: "List endpoints",
+			Flags: []cli.Flag{
+				districtFlag,
+			},
+		},
 	}
-	table.Render()
+
+	var array []cli.Command
+
+	for opname, command := range endpointSubcommands {
+
+		captured_opname := opname
+		captured_command := command
+
+		subcommand := cli.Command{
+			Name:      command.Name,
+			Usage:     command.Usage,
+			ArgsUsage: command.ArgsUsage,
+			Flags:     command.Flags,
+			Action: func(c *cli.Context) error {
+
+				endpointName := c.Args().Get(0)
+				if captured_command.ArgsUsage == "ENDPOINT_NAME" {
+					if len(endpointName) == 0 {
+						return cli.NewExitError("endpoint name is required", 1)
+					}
+
+					if len(c.Args()) != 1 {
+						return cli.NewExitError("please place options and flags before the endpoint name.", 1)
+					}
+				}
+
+				public := c.Bool("public")
+				cert_arn := c.String("certificate-arn")
+				policy := c.String("ssl-policy")
+				districtName := c.String("district")
+				noconfirm := c.Bool("no-confirmation")
+
+				client := struct {
+					*api.Client
+					utils.UserInputReader
+				}{
+					api.DefaultClient,
+					utils.NewStdinInputReader(),
+				}
+
+				oper := operations.NewEndpointOperation(
+					districtName,
+					endpointName,
+					public,
+					cert_arn,
+					policy,
+					noconfirm,
+					captured_opname,
+					client,
+				)
+				return operations.Execute(oper)
+			},
+		}
+		array = append(array, subcommand)
+	}
+
+	return array
+}
+
+var EndpointCommand = cli.Command{
+	Name:        "endpoint",
+	Usage:       "Endpoint operations",
+	Subcommands: getEndpointSubcommands(),
 }
