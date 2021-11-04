@@ -38,6 +38,16 @@ jobs:
           asset_path: ./out/${{ steps.getver.outputs.VERSION }}/bcn_darwin_amd64.zip
           asset_name: bcn_darwin_amd64.zip
           asset_content_type: application/zip
+      - name: Upload Mac M1 Executable
+        id: release_mac_arm_exe
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/${{ steps.getver.outputs.VERSION }}/bcn_darwin_arm64.zip
+          asset_name: bcn_darwin_arm64.zip
+          asset_content_type: application/zip
       - name: Upload Linux Executable
         id: release_linux_exe 
         uses: actions/upload-release-asset@v1
@@ -47,6 +57,16 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./out/${{ steps.getver.outputs.VERSION }}/bcn_linux_amd64.zip
           asset_name: bcn_linux_amd64.zip
+          asset_content_type: application/zip
+      - name: Upload Linux ARM64 Executable
+        id: release_linux_arm_exe
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./out/${{ steps.getver.outputs.VERSION }}/bcn_linux_arm64.zip
+          asset_name: bcn_linux_arm64.zip
           asset_content_type: application/zip
       - name: Upload Windows Executable
         id: release_win_exe
