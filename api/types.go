@@ -1,10 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
-	"strings"
-
 	"github.com/degica/barcelona-cli/config"
+	"strings"
 )
 
 type DistrictResponse struct {
@@ -109,10 +109,10 @@ type ReviewAppService struct {
 }
 
 type ReviewAppDefinition struct {
-	GroupName   string              `yaml:"group" json:"group_name"`
-	ImageName   string              `yaml:"image_name" json:"image_name"`
-	Environment []*EnvironmentPair  `yaml:"environment" json:"environment"`
-	Services    []*ReviewAppService `yaml:"services" json:"services"`
+	GroupName   string                 `yaml:"group" json:"group_name"`
+	ImageName   string                 `yaml:"image_name" json:"image_name"`
+	Environment EnvironmentVariableSet `yaml:"environment" json:"environment"`
+	Services    []*ReviewAppService    `yaml:"services" json:"services"`
 }
 
 type ReviewAppRequest struct {
@@ -141,17 +141,17 @@ type RunEnv struct {
 }
 
 type Heritage struct {
-	Name           string             `yaml:"name" json:"name"`
-	ImageName      string             `yaml:"image_name" json:"image_name"`
-	ImageTag       string             `yaml:"image_tag,omitempty" json:"image_tag,omitempty"`
-	BeforeDeploy   *string            `yaml:"before_deploy" json:"before_deploy"`
-	Version        int                `yaml:"version,omitempty" json:"version,omitempty"`
-	ScheduledTasks []*ScheduledTask   `yaml:"scheduled_tasks" json:"scheduled_tasks"`
-	Services       []*Service         `yaml:"services" json:"services"`
-	EnvVars        map[string]string  `json:"env_vars,omitempty"`
-	Environment    []*EnvironmentPair `yaml:"environment" json:"environment"`
-	Token          string             `json:"token,omitempty"`
-	RunEnv         *RunEnv            `yaml:"run_env,omitempty" json:"run_env,omitempty"`
+	Name           string                 `yaml:"name" json:"name"`
+	ImageName      string                 `yaml:"image_name" json:"image_name"`
+	ImageTag       string                 `yaml:"image_tag,omitempty" json:"image_tag,omitempty"`
+	BeforeDeploy   *string                `yaml:"before_deploy" json:"before_deploy"`
+	Version        int                    `yaml:"version,omitempty" json:"version,omitempty"`
+	ScheduledTasks []*ScheduledTask       `yaml:"scheduled_tasks" json:"scheduled_tasks"`
+	Services       []*Service             `yaml:"services" json:"services"`
+	EnvVars        map[string]string      `json:"env_vars,omitempty"`
+	Environment    EnvironmentVariableSet `yaml:"environment" json:"environment"`
+	Token          string                 `json:"token,omitempty"`
+	RunEnv         *RunEnv                `yaml:"run_env,omitempty" json:"run_env,omitempty"`
 }
 
 func (h *Heritage) FillinDefaults() {
@@ -315,4 +315,124 @@ func (err *APIError) Error() string {
 	} else {
 		return err.Message
 	}
+}
+
+type EnvironmentVariableSet struct {
+	Entries []*EnvironmentPair
+}
+
+func (b *EnvironmentVariableSet) UnmarshalJSONOriginal(data []byte) error {
+
+	var arr []map[string]string
+
+	if err := json.Unmarshal(data, &arr); err != nil {
+		return err
+	}
+
+	for _, element := range arr {
+		var x = EnvironmentPair{Name: element["name"]}
+
+		if val, ok := element["ssm_path"]; ok {
+			x.SsmPath = &val
+		}
+
+		if val, ok := element["value_from"]; ok {
+			x.ValueFrom = &val
+		}
+
+		if val, ok := element["value"]; ok {
+			x.Value = &val
+		}
+
+		b.Entries = append(b.Entries, &x)
+	}
+	return nil
+}
+
+func (b *EnvironmentVariableSet) UnmarshalJSON(data []byte) error {
+
+	var objmap map[string]map[string]string
+	if err := json.Unmarshal(data, &objmap); err != nil {
+
+		// Unmarshal as a list of entries
+		return b.UnmarshalJSONOriginal(data)
+	}
+
+	for key, element := range objmap {
+		var x = EnvironmentPair{Name: key}
+
+		for name, value := range element {
+			if name == "ssm" {
+				x.SsmPath = &value
+			}
+			if name == "value" {
+				x.Value = &value
+			}
+		}
+		b.Entries = append(b.Entries, &x)
+	}
+
+	return nil
+}
+
+func (b *EnvironmentVariableSet) UnmarshalYAMLOriginal(unmarshal func(interface{}) error) error {
+
+	var arr []map[string]string
+
+	if err := unmarshal(&arr); err != nil {
+		return err
+	}
+
+	for _, element := range arr {
+		var x = EnvironmentPair{Name: element["name"]}
+
+		if val, ok := element["ssm_path"]; ok {
+			x.SsmPath = &val
+		}
+
+		if val, ok := element["value_from"]; ok {
+			x.ValueFrom = &val
+		}
+
+		if val, ok := element["value"]; ok {
+			x.Value = &val
+		}
+
+		b.Entries = append(b.Entries, &x)
+	}
+	return nil
+}
+
+func (b *EnvironmentVariableSet) UnmarshalYAML(unmarshal func(interface{}) error) error {
+
+	var objmap map[string]map[string]string
+	err := unmarshal(&objmap)
+	if err != nil {
+
+		// Unmarshal as a list of entries
+		return b.UnmarshalYAMLOriginal(unmarshal)
+	}
+
+	for key, element := range objmap {
+		var x = EnvironmentPair{Name: key}
+
+		for name, value := range element {
+			if name == "ssm_path" {
+				x.SsmPath = &value
+			}
+			if name == "value" {
+				x.Value = &value
+			}
+			if name == "value_from" {
+				x.ValueFrom = &value
+			}
+		}
+		b.Entries = append(b.Entries, &x)
+	}
+
+	return nil
+}
+
+func (b EnvironmentVariableSet) MarshalJSON() ([]byte, error) {
+	return json.Marshal(b.Entries)
 }
