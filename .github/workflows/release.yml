@@ -6,6 +6,8 @@ name: release
 jobs:
   release:
     name: Create Release
+    container:
+      image: golang:latest
     runs-on: ubuntu-latest
     steps:
       - name: checkout
