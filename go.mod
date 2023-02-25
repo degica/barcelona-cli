@@ -10,7 +10,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.0-20170128050532-febf2d34b54a
 	github.com/urfave/cli v1.19.1
 	golang.org/x/crypto v0.0.0-20170209233901-453249f01cfe
-	golang.org/x/sys v0.0.0-20170223225100-e4594059fe4c // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200902074654-038fdea0a05b // indirect
 	gopkg.in/yaml.v2 v2.0.0-20170208141851-a3f3340b5840
 )
