@@ -47,5 +47,7 @@ vet: generate
 release: build $(ZIPS)
 
 clean:
+	go clean -modcache
+	go clean -testcache
 	rm -rf $(OUTDIR)
 	rm -f ./bcn

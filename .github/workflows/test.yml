@@ -4,19 +4,17 @@ jobs:
   test:
     container:
       image: golang:latest
-      env:
-        REPO_NAME: github.com/degica/barcelona-cli
-        GLIDE_VERSION: 0.13.3
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: script
-      run: |-
+      run: |
+        git config --global --add safe.directory $PWD
         make check
 'on':
   push:
     branches:
-    - master
+    - '*'
   pull_request:
     branches:
-    - master
+    - '*'

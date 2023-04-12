@@ -12,6 +12,7 @@ import (
 	"github.com/degica/barcelona-cli/utils"
 	"github.com/olekukonko/tablewriter"
 	"github.com/urfave/cli"
+	yaml "gopkg.in/yaml.v2"
 )
 
 var DistrictCommand = cli.Command{
@@ -38,6 +39,11 @@ var DistrictCommand = cli.Command{
 					Value: "t2.small",
 					Usage: "Cluster Instance Type",
 				},
+				cli.StringFlag{
+					Name:  "district-aws-credential-file",
+					Value: "",
+					Usage: "File path of yaml credentials for AWS. Yaml file format: \n\t\tAccessKeyId:XXXXXX\n\t\tSecretAccessKey:XXXXXX",
+				},
 			},
 			Action: func(c *cli.Context) error {
 				districtName := c.Args().Get(0)
@@ -54,9 +60,19 @@ var DistrictCommand = cli.Command{
 					ClusterInstanceType: c.String("cluster-instance-type"),
 					ClusterBackend:      "autoscaling",
 				}
-				request.AwsAccessKeyId = utils.Ask("AWS Access Key ID", true, false, utils.NewStdinInputReader())
-				request.AwsSecretAccessKey = utils.Ask("AWS Secret Access Key", true, true, utils.NewStdinInputReader())
 
+				awsCredentialFilePath := c.String("district-aws-credential-file")
+				if awsCredentialFilePath == "" {
+					request.AwsAccessKeyId = utils.Ask("AWS Access Key ID", true, false, utils.NewStdinInputReader())
+					request.AwsSecretAccessKey = utils.Ask("AWS Secret Access Key", true, true, utils.NewStdinInputReader())
+				} else {
+					credentials, err := loadAwsCredentialsFile(awsCredentialFilePath)
+					if err != nil {
+						return cli.NewExitError(fmt.Sprintf("Could not load credentials from filepath: %s, Error: %s", awsCredentialFilePath, err.Error()), 1)
+					}
+					request.AwsAccessKeyId = credentials.AccessKeyId
+					request.AwsSecretAccessKey = credentials.SecretAccessKey
+				}
 				district, err := api.DefaultClient.CreateDistrict(&request)
 				if err != nil {
 					return cli.NewExitError(err.Error(), 1)
@@ -337,6 +353,26 @@ var DistrictCommand = cli.Command{
 			},
 		},
 	},
+}
+
+type AwsCredentials struct {
+	AccessKeyId     string `yaml:"AccessKeyId" json:"AccessKeyId"`
+	SecretAccessKey string `yaml:"SecretAccessKey" json:"SecretAccessKey"`
+}
+
+func loadAwsCredentialsFile(filePath string) (*AwsCredentials, error) {
+	configFile, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	var config AwsCredentials
+	err = yaml.Unmarshal(configFile, &config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &config, nil
 }
 
 func applyOrNotice(districtName string, apply bool) error {
