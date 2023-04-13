@@ -1,9 +1,11 @@
 package api
 
 import (
+	"fmt"
 	"testing"
 
 	"encoding/json"
+
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -33,19 +35,27 @@ func TestUnmarshalEnvironmentArray(t *testing.T) {
 		t.Errorf("Could not Unmarshal heritage %s", err.Error())
 	}
 
-	if res := heritage.Environment.Entries[0].Name; res != "TESTVAR" {
+	// go maps are unordered, deal with this without having to create a sort function
+	var1 := 0
+	var2 := 1
+	if res := heritage.Environment.Entries[0].Name; res == "TESTVAR2" {
+		var1 = 1
+		var2 = 0
+	}
+
+	if res := heritage.Environment.Entries[var1].Name; res != "TESTVAR" {
 		t.Errorf("Expected 'TESTVAR' but got: %s", res)
 	}
 
-	if res := *heritage.Environment.Entries[0].SsmPath; res != "hello/testvar" {
+	if res := *heritage.Environment.Entries[var1].SsmPath; res != "hello/testvar" {
 		t.Errorf("Expected 'hello/testvar' but got: %s", res)
 	}
 
-	if res := heritage.Environment.Entries[1].Name; res != "TESTVAR2" {
+	if res := heritage.Environment.Entries[var2].Name; res != "TESTVAR2" {
 		t.Errorf("Expected 'TESTVAR2' but got: %s", res)
 	}
 
-	if res := *heritage.Environment.Entries[1].SsmPath; res != "hello/testvar2" {
+	if res := *heritage.Environment.Entries[var2].SsmPath; res != "hello/testvar2" {
 		t.Errorf("Expected 'hello/testvar2' but got: %s", res)
 	}
 }
@@ -68,19 +78,27 @@ func TestUnmarshalEnvironmentHash(t *testing.T) {
 		t.Errorf("Could not Unmarshal heritage %s", err.Error())
 	}
 
-	if res := heritage.Environment.Entries[0].Name; res != "TESTVAR" {
+	// go maps are unordered, deal with this without having to create a sort function
+	var1 := 0
+	var2 := 1
+	if res := heritage.Environment.Entries[0].Name; res == "TESTVAR1" {
+		var1 = 1
+		var2 = 0
+	}
+
+	if res := heritage.Environment.Entries[var1].Name; res != "TESTVAR" {
 		t.Errorf("Expected 'TESTVAR' but got: %s", res)
 	}
 
-	if res := *heritage.Environment.Entries[0].SsmPath; res != "hello/testvar1" {
+	if res := *heritage.Environment.Entries[var1].SsmPath; res != "hello/testvar1" {
 		t.Errorf("Expected 'hello/testvar1' but got: %s", res)
 	}
 
-	if res := heritage.Environment.Entries[1].Name; res != "TESTVAR2" {
+	if res := heritage.Environment.Entries[var2].Name; res != "TESTVAR2" {
 		t.Errorf("Expected 'TESTVAR2' but got: %s", res)
 	}
 
-	if res := *heritage.Environment.Entries[1].SsmPath; res != "hello/testvar2" {
+	if res := *heritage.Environment.Entries[var2].SsmPath; res != "hello/testvar2" {
 		t.Errorf("Expected 'hello/testvar2' but got: %s", res)
 	}
 }
@@ -103,10 +121,13 @@ func TestMarshalEnvironmentHash(t *testing.T) {
 		t.Errorf("Could not Unmarshal heritage %s", err.Error())
 	}
 
-	expectation := `[{"name":"TESTVAR","ssm_path":"hello/testvar1"},{"name":"TESTVAR2","ssm_path":"hello/testvar2"}]`
+	s1 := `{"name":"TESTVAR","ssm_path":"hello/testvar1"}`
+	s2 := `{"name":"TESTVAR2","ssm_path":"hello/testvar2"}`
+	expectation1 := fmt.Sprintf("[%s,%s]", s1, s2)
+	expectation2 := fmt.Sprintf("[%s,%s]", s1, s2)
 
 	bytes, _ := json.Marshal(heritage.Environment)
-	if str := string(bytes[:]); str != expectation {
-		t.Errorf("Expected '%s' but got: %s", expectation, str)
+	if str := string(bytes[:]); str != expectation1 || str != expectation2 {
+		t.Errorf("Expected '%s' or '%s' but got: %s", expectation1, expectation2, str)
 	}
 }
