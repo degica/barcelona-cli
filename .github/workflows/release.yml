@@ -18,7 +18,9 @@ jobs:
           output=`cat VERSION`
           echo "::set-output name=VERSION::$output"
       - name: Build project
-        run: make release
+        run: |
+          git config --global --add safe.directory $PWD
+          make release
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
