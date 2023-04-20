@@ -1,6 +1,6 @@
 module github.com/degica/barcelona-cli
 
-go 1.14
+go 1.20
 
 require (
 	github.com/jarcoal/httpmock v1.0.8
