@@ -12,11 +12,17 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
+      - name: Setup
+        id: setup
+        run: |
+          apt update
+          apt install -y zip
       - name: Get Version
         id: getver
         run: |
           output=`cat VERSION`
           echo "::set-output name=VERSION::$output"
+
       - name: Build project
         run: |
           git config --global --add safe.directory $PWD
