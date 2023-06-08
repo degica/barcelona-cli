@@ -26,6 +26,7 @@ environments:
         listeners:
           - endpoint: barcelona-second
             health_check_path: /health_check
+            health_check_port: 5555
       - name: worker
         command: rake jobs:work
         cpu: 128

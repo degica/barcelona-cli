@@ -42,3 +42,7 @@ Run `make format` to format your code!
 ### Vetting
 
 Run `make vet` to ensure your code meets all the go conventions
+
+### E2E
+
+To test a running instance of barcelona, you can run this test suite against it: https://github.com/degica/barcelona-e2e

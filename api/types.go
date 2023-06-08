@@ -3,8 +3,9 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/degica/barcelona-cli/config"
 	"strings"
+
+	"github.com/degica/barcelona-cli/config"
 )
 
 type DistrictResponse struct {
@@ -207,6 +208,7 @@ type Listener struct {
 	Endpoint                string          `yaml:"endpoint" json:"endpoint"`
 	HealthCheckInterval     int             `yaml:"health_check_interval,omitempty" json:"health_check_interval,omitempty"`
 	HealthCheckPath         string          `yaml:"health_check_path,omitempty" json:"health_check_path,omitempty"`
+	HealthCheckPort         string          `yaml:"health_check_port,omitempty" json:"health_check_port,omitempty"`
 	HealthCheckTimeout      int             `yaml:"health_check_timeout,omitempty" json:"health_check_timeout,omitempty"`
 	HealthyThresholdCount   int             `yaml:"healthy_threshold_count,omitempty" json:"healthy_threshold_count,omitempty"`
 	UnhealthyThresholdCount int             `yaml:"unhealthy_threshold_count,omitempty" json:"unhealthy_threshold_count,omitempty"`
