@@ -44,6 +44,9 @@ func ok_result() *runResult {
 type OperationType string
 
 const (
-	Delete OperationType = "Delete"
+	Create OperationType = "Create"
+	Delete               = "Delete"
 	Show                 = "Show"
+	List                 = "List"
+	Update               = "Update"
 )
