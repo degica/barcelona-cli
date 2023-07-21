@@ -216,6 +216,10 @@ LOOP:
 		}
 	}
 
+	if matchedCI == nil {
+		return cli.NewExitError("Failed to find the container. Maybe try again")
+	}
+
 	ssh := utils.NewSshCommand(
 		matchedCI.PrivateIPAddress,
 		oneoff.District.BastionIP,
