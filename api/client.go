@@ -91,9 +91,6 @@ func (cli *Client) rawRequest(req *http.Request) ([]byte, error) {
 
 		if err != nil {
 			// Not a JSON error
-			//fmt.Printf("Failed to parse error. Use `bcn -d` to see raw server response\n")
-			//return nil, err
-
 			resstr := "HTTP Error:" + resp.Status + "\nType bcn -d <command> for details"
 
 			apiErr = APIError{resstr, string(b[:]), []string{}}
