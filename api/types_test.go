@@ -124,10 +124,10 @@ func TestMarshalEnvironmentHash(t *testing.T) {
 	s1 := `{"name":"TESTVAR","ssm_path":"hello/testvar1"}`
 	s2 := `{"name":"TESTVAR2","ssm_path":"hello/testvar2"}`
 	expectation1 := fmt.Sprintf("[%s,%s]", s1, s2)
-	expectation2 := fmt.Sprintf("[%s,%s]", s1, s2)
+	expectation2 := fmt.Sprintf("[%s,%s]", s2, s1)
 
 	bytes, _ := json.Marshal(heritage.Environment)
-	if str := string(bytes[:]); str != expectation1 || str != expectation2 {
-		t.Errorf("Expected '%s' or '%s' but got: %s", expectation1, expectation2, str)
+	if str := string(bytes[:]); str != expectation1 && str != expectation2 {
+		t.Errorf("Expected \n'%s' \nor \n'%s' \nbut got: \n'%s'", expectation1, expectation2, str)
 	}
 }

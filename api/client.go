@@ -69,6 +69,7 @@ func (cli *Client) rawRequest(req *http.Request) ([]byte, error) {
 	}
 
 	resp, err := cli.config.HttpClient.Do(req)
+
 	if err != nil {
 		return nil, err
 	}
@@ -87,9 +88,12 @@ func (cli *Client) rawRequest(req *http.Request) ([]byte, error) {
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		var apiErr APIError
 		err := json.Unmarshal(b, &apiErr)
+
 		if err != nil {
-			fmt.Printf("Failed to parse error. Use `bcn -d` to see raw server response\n")
-			return nil, err
+			// Not a JSON error
+			resstr := "HTTP Error:" + resp.Status + "\nType bcn -d <command> for details"
+
+			apiErr = APIError{resstr, string(b[:]), []string{}}
 		}
 
 		return b, &apiErr
